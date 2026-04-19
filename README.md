@@ -1,0 +1,68 @@
+# Surprises
+
+A collection of CLI tools, TUI applications, web utilities, and small projects.
+
+## ⚠️ Disclaimer
+
+**These projects are provided as-is with no guarantees.**
+
+- Not guaranteed to work 100% — may contain bugs, incomplete features, or unhandled edge cases
+- Use at your own risk
+- No warranty express or implied
+- Not officially maintained or supported
+
+## Projects
+
+| Category | Count |
+|----------|-------|
+| CLI Tools | ~12 |
+| TUI Apps | ~9 |
+| Web Apps | ~9 |
+| Utilities | ~5 |
+
+### Notable Projects
+
+- **url-shortener** — Self-hosted URL shortener with analytics
+- **kanboardx** — Drag-and-drop Kanban board (single-file Flask)
+- **gitviz** — Interactive Git history visualizer
+- **dockerwatch** — Real-time Docker container monitoring TUI
+- **logvault** — Go + ClickHouse log management system
+- **passgen** — Secure password generator (Rust)
+- **weather-dashboard** — Terminal weather dashboard
+- **healthdash** — Self-hosted service health monitoring
+
+## Quick Start
+
+Each project has its own setup instructions. Check individual `README.md` files.
+
+```bash
+# Example: Python projects
+cd <project-name>
+pip install -r requirements.txt
+python app.py
+
+# Example: Go projects
+cd <project-name>
+go build -o app .
+./app
+
+# Example: Rust projects
+cd <project-name>
+cargo build --release
+./target/release/<project>
+```
+
+## Tech Stack
+
+- Python (Flask, Textual, etc.)
+- Go (Bubble Tea, standard lib)
+- Rust (TUI frameworks)
+- Node.js
+
+## License
+
+MIT — Use freely, at your own risk.
+
+---
+
+**No support guaranteed. No guarantees of functionality. All projects are experimental.**
