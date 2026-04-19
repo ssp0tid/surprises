@@ -1,0 +1,19 @@
+[package]
+name = "shellmem-tui"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "shellmem-tui"
+path = "src/main.rs"
+
+[dependencies]
+shellmem-core = { path = "../shellmem-core" }
+ratatui.workspace = true
+crossterm.workspace = true
+color-eyre.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+dirs.workspace = true
+futures = "0.3"

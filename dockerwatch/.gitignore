@@ -1,0 +1,28 @@
+# Binaries
+dockerwatch
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Dependencies
+vendor/
+
+# Config (local overrides)
+config.local.yaml

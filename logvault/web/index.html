@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogVault - Log Management</title>
+  <link rel="stylesheet" href="/web/css/app.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://unpkg.com/alpinejs@3.13.5" defer></script>
+</head>
+<body x-data="logvault()" x-init="init()">
+  <div class="container">
+    <header class="header">
+      <h1>LogVault</h1>
+      <nav class="nav">
+        <a href="/" class="nav-link" :class="{ active: tab === 'logs' }" @click.prevent="tab = 'logs'">Logs</a>
+        <a href="#" class="nav-link" :class="{ active: tab === 'analytics' }" @click.prevent="tab = 'analytics'">Analytics</a>
+        <a href="#" class="nav-link" :class="{ active: tab === 'stream' }" @click.prevent="tab = 'stream'">Live Stream</a>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section x-show="tab === 'logs'" class="tab-content">
+        <div class="filters">
+          <input type="text" x-model="filters.q" placeholder="Search..." class="input" @input.debounce.300ms="loadLogs()">
+          <select x-model="filters.level" @change="loadLogs()" class="select">
+            <option value="">All Levels</option>
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO">INFO</option>
+            <option value="WARN">WARN</option>
+            <option value="ERROR">ERROR</option>
+            <option value="FATAL">FATAL</option>
+          </select>
+          <input type="text" x-model="filters.service" placeholder="Service" class="input" @input.debounce.300ms="loadLogs()">
+          <button @click="loadLogs()" class="btn">Search</button>
+          <button @click="clearFilters()" class="btn btn-secondary">Clear</button>
+        </div>
+
+        <div class="logs-table-wrapper">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Service</th>
+                <th>Host</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="log in logs" :key="log.id">
+                <tr :class="'level-' + log.level.toLowerCase()">
+                  <td x-text="formatTime(log.timestamp)"></td>
+                  <td><span class="badge" :class="'badge-' + log.level.toLowerCase()" x-text="log.level"></span></td>
+                  <td x-text="log.service"></td>
+                  <td x-text="log.host"></td>
+                  <td x-text="log.message" class="message"></td>
+                </tr>
+              </template>
+              <tr x-show="logs.length === 0">
+                <td colspan="5" class="empty">No logs found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" x-show="hasMore">
+          <button @click="loadMore()" class="btn" :disabled="loading">Load More</button>
+        </div>
+      </section>
+
+      <section x-show="tab === 'analytics'" class="tab-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" x-text="analytics.totalLogs.toLocaleString()"></div>
+            <div class="stat-label">Total Logs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" x-text="analytics.logsLast24h.toLocaleString()"></div>
+            <div class="stat-label">Last 24 Hours</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" x-text="analytics.errorCount.toLocaleString()"></div>
+            <div class="stat-label">Errors</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" x-text="analytics.errorRate.toFixed(2) + '%'"></div>
+            <div class="stat-label">Error Rate</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Log Level Distribution</h3>
+            <div class="bar-chart">
+              <template x-for="level in analytics.levels" :key="level.level">
+                <div class="bar-row">
+                  <span class="bar-label" x-text="level.level"></span>
+                  <div class="bar-container">
+                    <div class="bar" :class="'bar-' + level.level.toLowerCase()" :style="'width:' + level.percentage + '%'"></div>
+                  </div>
+                  <span class="bar-value" x-text="level.percentage.toFixed(1) + '%'"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section x-show="tab === 'stream'" class="tab-content">
+        <div class="stream-header">
+          <h3>Live Log Stream</h3>
+          <label class="checkbox">
+            <input type="checkbox" x-model="streamConnected" @change="toggleStream()">
+            <span x-text="streamConnected ? 'Connected' : 'Disconnected'"></span>
+          </label>
+        </div>
+        <div class="stream-logs" x-ref="streamLogs">
+          <template x-for="log in streamLogs" :key="log.id">
+            <div class="stream-log" :class="'level-' + log.level.toLowerCase()">
+              <span class="stream-time" x-text="formatTime(log.timestamp)"></span>
+              <span class="badge badge-xs" :class="'badge-' + log.level.toLowerCase()" x-text="log.level"></span>
+              <span x-text="log.message"></span>
+            </div>
+          </template>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/web/js/app.js"></script>
+</body>
+</html>

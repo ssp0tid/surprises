@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.eggs/
+pip-log.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite
+*.sqlite3
+.venv/
+venv/
+ENV/
+env/
+
+# Go
+*.exe
+*.test
+*.out
+httpbench
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Keys & Secrets
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+credentials.json
+service-account.json
+
+# Data
+*.csv
+*.json (except package-lock.json)
+!node_modules/**/package-lock.json
+
+# Build outputs
+target/
+*.o
+*.a
+
+# Misc
+*.bak
+*.tmp
+*.temp

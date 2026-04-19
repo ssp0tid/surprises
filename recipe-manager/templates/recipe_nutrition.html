@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}Nutrition: {{ recipe.title }} - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <a href="{{ url_for('recipe', recipe_id=recipe.id) }}" class="text-dark-400 hover:text-accent-500 mb-4 inline-block">← Back to Recipe</a>
+    
+    <h1 class="text-3xl font-bold mb-6">{{ recipe.title }}</h1>
+    
+    <h2 class="text-xl font-bold mb-4">Per Serving</h2>
+    
+    <!-- Nutrition Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-accent-500">{{ nutrition.calories }}</div>
+            <div class="text-dark-400">Calories</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ nutrition.protein }}g</div>
+            <div class="text-dark-400">Protein</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ nutrition.carbs }}g</div>
+            <div class="text-dark-400">Carbs</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ nutrition.fat }}g</div>
+            <div class="text-dark-400">Fat</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ nutrition.fiber }}g</div>
+            <div class="text-dark-400">Fiber</div>
+        </div>
+    </div>
+    
+    <!-- Ingredient Breakdown -->
+    <h2 class="text-xl font-bold mb-4">Ingredient Breakdown</h2>
+    <div class="card rounded-lg overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-dark-700">
+                    <th class="text-left py-3 px-4">Ingredient</th>
+                    <th class="text-right py-3 px-4">Qty</th>
+                    <th class="text-right py-3 px-4">Calories</th>
+                    <th class="text-right py-3 px-4">Protein</th>
+                    <th class="text-right py-3 px-4">Carbs</th>
+                    <th class="text-right py-3 px-4">Fat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ing in ingredients %}
+                {% set ing_nutrition = ing.ingredient.nutrition if ing.ingredient else {} %}
+                <tr class="border-b border-dark-700 last:border-b-0">
+                    <td class="py-3 px-4">{{ ing.ingredient.name if ing.ingredient else 'Unknown' }}</td>
+                    <td class="text-right py-3 px-4">{{ ing.quantity }} {{ ing.unit }}</td>
+                    <td class="text-right py-3 px-4">{{ (ing_nutrition.calories or 0) * ing.quantity / 100|round(1) }}</td>
+                    <td class="text-right py-3 px-4">{{ (ing_nutrition.protein or 0) * ing.quantity / 100|round(1) }}g</td>
+                    <td class="text-right py-3 px-4">{{ (ing_nutrition.carbs or 0) * ing.quantity / 100|round(1) }}g</td>
+                    <td class="text-right py-3 px-4">{{ (ing_nutrition.fat or 0) * ing.quantity / 100|round(1) }}g</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="card rounded-lg p-4 mt-8 bg-dark-700">
+        <p class="text-dark-400 text-sm">
+            <strong>Note:</strong> Nutrition values are estimates based on ingredient data per 100g. 
+            Actual values may vary based on specific brands and preparation methods.
+        </p>
+    </div>
+</div>
+{% endblock %}

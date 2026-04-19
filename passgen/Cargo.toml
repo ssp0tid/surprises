@@ -1,0 +1,76 @@
+[package]
+name = "passgen"
+version = "1.0.0"
+edition = "2021"
+authors = ["PassGen Team"]
+license = "MIT"
+description = "Secure Password Generator CLI Tool"
+repository = "https://github.com/passgen/passgen"
+rust-version = "1.70"
+
+[[bin]]
+name = "passgen"
+path = "src/main.rs"
+
+[lib]
+name = "passgen"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI parsing
+clap = { version = "4.4", features = ["derive", "env"] }
+clap_complete = "4.4"
+
+# Random number generation
+rand = "0.8"
+getrandom = "0.2"
+
+# Password strength
+zxcvbn = "3"
+
+# Clipboard
+arboard = "3.2"
+
+# Storage
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dirs = "5.0"
+aes-gcm = "0.10"
+base64 = "0.21"
+
+# Async (for clipboard timeout)
+tokio = { version = "1.35", features = ["time", "sync", "rt"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# TOML config
+toml = "0.8"
+
+# ANSI terminal colors
+ansi_term = "0.12"
+
+# UUID for unique IDs
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+[dev-dependencies]
+criterion = "0.5"
+tempfile = "3.8"
+
+[[bench]]
+name = "benchmark"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

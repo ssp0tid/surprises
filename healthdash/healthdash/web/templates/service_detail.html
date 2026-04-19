@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.name }} - HealthDash{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">{{ service.name }}</h1>
+        <p class="text-muted mb-0">{{ service.url }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('web.edit_service', service_id=service.id) }}" class="btn btn-outline-primary">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <form method="POST" action="{{ url_for('web.check_service', service_id=service.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="fas fa-bolt me-2"></i>Check Now
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-value {% if uptime_percentage >= 99 %}text-success{% elif uptime_percentage >= 95 %}text-warning{% else %}text-danger{% endif %}">
+            {% if uptime_percentage is not none %}{{ uptime_percentage }}%{% else %}--{% endif %}
+        </div>
+        <div class="stat-label">Uptime (last 100)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">
+            {% if avg_response_time is not none %}{{ avg_response_time }}ms{% else %}--{% endif %}
+        </div>
+        <div class="stat-label">Avg Response Time</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_checks }}</div>
+        <div class="stat-label">Total Checks</div>
+    </div>
+    <div class="stat-card">
+        {% if last_check %}
+            <span class="badge {% if last_check.is_up %}badge-up{% else %}badge-down{% endif %} fs-6">
+                {% if last_check.is_up %}UP{% else %}DOWN{% endif %}
+            </span>
+        {% else %}
+            <span class="badge badge-pending fs-6">PENDING</span>
+        {% endif %}
+        <div class="stat-label">Last Check</div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Configuration</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted">Method:</td>
+                        <td><code>{{ service.method }}</code></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Expected Status:</td>
+                        <td><code>{{ service.expected_status }}</code></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Check Interval:</td>
+                        <td>{{ service.check_interval }}s</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Timeout:</td>
+                        <td>{{ service.timeout }}s</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Status:</td>
+                        <td>
+                            <span class="badge {% if service.is_active %}badge-up{% else %}badge-pending{% endif %}">
+                                {% if service.is_active %}Active{% else %}Paused{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <form method="POST" action="{{ url_for('web.toggle_service', service_id=service.id) }}">
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            {% if service.is_active %}
+                            <i class="fas fa-pause me-2"></i>Pause Monitoring
+                            {% else %}
+                            <i class="fas fa-play me-2"></i>Resume Monitoring
+                            {% endif %}
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Delete Service
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Checks</h5>
+        <span class="text-muted">Last 20 checks</span>
+    </div>
+    <div class="card-body p-0">
+        {% if checks %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Status</th>
+                        <th>Response Time</th>
+                        <th>Status Code</th>
+                        <th>Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in checks %}
+                    <tr>
+                        <td>{{ check.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            {% if check.is_up %}
+                                <span class="badge badge-up">
+                                    <i class="fas fa-check-circle me-1"></i>Up
+                                </span>
+                            {% else %}
+                                <span class="badge badge-down">
+                                    <i class="fas fa-times-circle me-1"></i>Down
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if check.response_time is not none %}
+                                {% if check.response_time > 1000 %}
+                                <span class="text-warning">{{ check.response_time }}ms</span>
+                                {% else %}
+                                {{ check.response_time }}ms
+                                {% endif %}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if check.status_code is not none %}
+                                <code>{{ check.status_code }}</code>
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if check.error_message %}
+                                <span class="text-danger" title="{{ check.error_message }}">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </span>
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="fas fa-clock me-2"></i>No checks performed yet
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ service.name }}</strong>?</p>
+                <p class="text-muted">This will also delete all health check history. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('web.delete_service', service_id=service.id) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

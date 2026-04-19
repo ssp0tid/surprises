@@ -1,0 +1,22 @@
+[package]
+name = "shellmem-cli"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "shellmem"
+path = "src/main.rs"
+
+[dependencies]
+shellmem-core = { path = "../shellmem-core" }
+clap.workspace = true
+clap_complete.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+dirs.workspace = true
+toml.workspace = true
+csv.workspace = true
+
+[dev-dependencies]
+assert_cmd = "2.0"

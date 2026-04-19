@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Recipe Manager{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            400: '#94a3b8',
+                            100: '#f1f5f9',
+                        },
+                        accent: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+        .btn-primary {
+            background-color: #f59e0b;
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background-color: #d97706;
+        }
+        .input-field {
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            color: #f1f5f9;
+        }
+        .input-field:focus {
+            border-color: #f59e0b;
+            outline: none;
+        }
+        .nav-link {
+            color: #94a3b8;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #f59e0b;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-dark-800 border-b border-dark-700">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-accent-500">Recipe Manager</a>
+                    {% if current_user.is_authenticated %}
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="{{ url_for('recipes') }}" class="nav-link hover:text-accent-500">Recipes</a>
+                        <a href="{{ url_for('meal_plan') }}" class="nav-link hover:text-accent-500">Meal Plan</a>
+                        <a href="{{ url_for('shopping_lists') }}" class="nav-link hover:text-accent-500">Shopping</a>
+                        <a href="{{ url_for('nutrition') }}" class="nav-link hover:text-accent-500">Nutrition</a>
+                    </nav>
+                    {% endif %}
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                    <span class="text-dark-400">{{ current_user.username }}</span>
+                    <a href="{{ url_for('logout') }}" class="text-dark-400 hover:text-accent-500">Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn-primary px-4 py-2 rounded font-semibold">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mx-auto px-4 py-4">
+        {% for category, message in messages %}
+        <div class="p-4 rounded mb-2 {% if category == 'error' %}bg-red-900 text-red-100{% elif category == 'success' %}bg-green-900 text-green-100{% elif category == 'warning' %}bg-yellow-900 text-yellow-100{% else %}bg-blue-900 text-blue-100{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark-800 border-t border-dark-700 mt-auto">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-dark-400 text-sm">&copy; 2024 Recipe Manager. Built with Flask.</p>
+                {% if current_user.is_authenticated %}
+                <nav class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="{{ url_for('search') }}" class="text-dark-400 hover:text-accent-500 text-sm">Search</a>
+                    <a href="{{ url_for('recipes') }}" class="text-dark-400 hover:text-accent-500 text-sm">All Recipes</a>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

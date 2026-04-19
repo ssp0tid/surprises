@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block title %}Search by Ingredient - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Search by Ingredient</h1>
+    
+    <!-- Search Form -->
+    <form method="GET" class="card rounded-lg p-6 mb-8">
+        <label for="ingredient" class="block text-sm font-medium mb-2">Ingredient</label>
+        <div class="flex gap-4">
+            <input type="text" name="ingredient" value="{{ ingredient }}" placeholder="e.g., chicken, tomato..." autofocus
+                   class="input-field flex-grow px-4 py-3 rounded text-lg" list="ingredientDatalist">
+            <datalist id="ingredientDatalist">
+                <option value="Chicken">
+                <option value="Beef">
+                <option value="Rice">
+                <option value="Pasta">
+                <option value="Broccoli">
+                <option value="Tomato">
+                <option value="Onion">
+                <option value="Garlic">
+                <option value="Egg">
+                <option value="Cheese">
+            </datalist>
+            <button type="submit" class="btn-primary px-8 py-3 rounded font-semibold">Search</button>
+        </div>
+    </form>
+    
+    {% if ingredient %}
+    <div class="mb-6">
+        <h2 class="text-xl font-bold">Recipes with "{{ ingredient }}"</h2>
+    </div>
+    
+    {% if message %}
+    <div class="text-center py-8 card rounded-lg">
+        <p class="text-dark-400">{{ message }}</p>
+    </div>
+    {% elif results %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for recipe in results %}
+        <a href="{{ url_for('recipe', recipe_id=recipe.id) }}" class="card rounded-lg overflow-hidden hover:border-accent-500">
+            {% if recipe.image_url %}
+            <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="w-full h-40 object-cover">
+            {% else %}
+            <div class="w-full h-40 bg-dark-700 flex items-center justify-center text-4xl">🍳</div>
+            {% endif %}
+            <div class="p-4">
+                <h3 class="font-semibold text-lg">{{ recipe.title }}</h3>
+                <div class="flex items-center space-x-4 mt-2 text-dark-400 text-sm">
+                    {% if recipe.prep_time or recipe.cook_time %}
+                    <span>⏱️ {{ (recipe.prep_time or 0) + (recipe.cook_time or 0) }} min</span>
+                    {% endif %}
+                    {% if recipe.servings %}
+                    <span>👥 {{ recipe.servings }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-8 card rounded-lg">
+        <p class="text-dark-400">No recipes found with this ingredient</p>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+// Initialize datalist with common ingredients
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/ingredients?');
+        const ingredients = await response.json();
+        const datalist = document.getElementById('ingredientDatalist');
+        datalist.innerHTML = ingredients.map(i => `<option value="${i.name}">`).join('');
+    } catch (e) {
+        console.error('Failed to load ingredients');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  logvault:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - LOGVAULT_HOST=0.0.0.0
+      - LOGVAULT_PORT=8080
+      - LOGVAULT_BASE_URL=http://localhost:8080
+      - LOGVAULT_DB_HOST=clickhouse
+      - LOGVAULT_DB_PORT=9000
+      - LOGVAULT_DB_USER=default
+      - LOGVAULT_DB_PASSWORD=
+      - LOGVAULT_DB_NAME=logs
+      - LOGVAULT_AUTH_ENABLED=false
+      - LOGVAULT_RETENTION_DAYS=90
+    volumes:
+      - ./data:/data
+    depends_on:
+      - clickhouse
+    restart: unless-stopped
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    environment:
+      - CLICKHOUSE_DB=logs
+    volumes:
+      - ./clickhouse/data:/var/lib/clickhouse
+      - ./clickhouse/logs:/var/log/clickhouse-server
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144

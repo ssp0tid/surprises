@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block title %}Nutrition - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Nutrition Dashboard</h1>
+    
+    <!-- Date Range -->
+    <div class="card rounded-lg p-4 mb-6">
+        <p class="text-dark-400">Week of {{ start_date.strftime('%B %d') }} - {{ end_date.strftime('%B %d, %Y') }}</p>
+    </div>
+    
+    <!-- Totals -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-accent-500">{{ totals.calories|int }}</div>
+            <div class="text-dark-400">Calories</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ totals.protein|int }}g</div>
+            <div class="text-dark-400">Protein</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ totals.carbs|int }}g</div>
+            <div class="text-dark-400">Carbs</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ totals.fat|int }}g</div>
+            <div class="text-dark-400">Fat</div>
+        </div>
+        <div class="card rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold">{{ totals.fiber|int }}g</div>
+            <div class="text-dark-400">Fiber</div>
+        </div>
+    </div>
+    
+    <!-- Daily Breakdown -->
+    <h2 class="text-2xl font-bold mb-4">Daily Breakdown</h2>
+    <div class="card rounded-lg p-6 overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-dark-700">
+                    <th class="text-left py-2">Day</th>
+                    <th class="text-right py-2">Calories</th>
+                    <th class="text-right py-2">Protein</th>
+                    <th class="text-right py-2">Carbs</th>
+                    <th class="text-right py-2">Fat</th>
+                    <th class="text-right py-2">Fiber</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for date, nutrition in daily_totals.items() %}
+                <tr class="border-b border-dark-700 last:border-b-0">
+                    <td class="py-2">{{ date.strftime('%A') }}</td>
+                    <td class="text-right py-2">{{ nutrition.calories|int }}</td>
+                    <td class="text-right py-2">{{ nutrition.protein|int }}g</td>
+                    <td class="text-right py-2">{{ nutrition.carbs|int }}g</td>
+                    <td class="text-right py-2">{{ nutrition.fat|int }}g</td>
+                    <td class="text-right py-2">{{ nutrition.fiber|int }}g</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Info Box -->
+    <div class="card rounded-lg p-4 mt-8 bg-dark-700">
+        <p class="text-dark-400 text-sm">
+            <strong>Note:</strong> Nutrition values are estimates based on ingredient data. 
+            Actual values may vary based on specific brands and preparation methods.
+        </p>
+    </div>
+</div>
+{% endblock %}

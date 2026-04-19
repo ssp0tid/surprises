@@ -1,0 +1,1 @@
+"""Weather TUI application package."""

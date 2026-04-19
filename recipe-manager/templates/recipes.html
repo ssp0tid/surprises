@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block title %}Recipes - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold">My Recipes</h1>
+            <p class="text-dark-400">{{ recipes|length }} recipe{{ 's' if recipes|length != 1 else '' }}</p>
+        </div>
+        <a href="{{ url_for('new_recipe') }}" class="btn-primary px-6 py-2 rounded font-semibold mt-4 md:mt-0">
+            + New Recipe
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <form method="GET" class="card p-4 rounded-lg mb-8">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-grow">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search recipes..."
+                       class="input-field w-full px-4 py-2 rounded">
+            </div>
+            <select name="difficulty" class="input-field px-4 py-2 rounded">
+                <option value="">All Difficulties</option>
+                <option value="easy" {% if difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                <option value="medium" {% if difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="hard" {% if difficulty == 'hard' %}selected{% endif %}>Hard</option>
+            </select>
+            <select name="cuisine" class="input-field px-4 py-2 rounded">
+                <option value="">All Cuisines</option>
+                <option value="Italian" {% if cuisine == 'Italian' %}selected{% endif %}>Italian</option>
+                <option value="Mexican" {% if cuisine == 'Mexican' %}selected{% endif %}>Mexican</option>
+                <option value="American" {% if cuisine == 'American' %}selected{% endif %}>American</option>
+                <option value="Asian" {% if cuisine == 'Asian' %}selected{% endif %}>Asian</option>
+            </select>
+            <button type="submit" class="px-6 py-2 bg-dark-700 rounded hover:bg-dark-600">Filter</button>
+        </div>
+    </form>
+    
+    <!-- Recipe Grid -->
+    {% if recipes %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for recipe in recipes %}
+        <a href="{{ url_for('recipe', recipe_id=recipe.id) }}" class="card rounded-lg overflow-hidden hover:border-accent-500 transition">
+            {% if recipe.image_url %}
+            <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
+            {% else %}
+            <div class="w-full h-48 bg-dark-700 flex items-center justify-center text-4xl">🍳</div>
+            {% endif %}
+            <div class="p-4">
+                <h3 class="font-semibold text-lg">{{ recipe.title }}</h3>
+                {% if recipe.description %}
+                <p class="text-dark-400 text-sm line-clamp-2 mt-1">{{ recipe.description }}</p>
+                {% endif %}
+                <div class="flex items-center space-x-4 mt-3 text-dark-400 text-sm">
+                    {% if recipe.prep_time or recipe.cook_time %}
+                    <span>⏱️ {{ (recipe.prep_time or 0) + (recipe.cook_time or 0) }} min</span>
+                    {% endif %}
+                    {% if recipe.servings %}
+                    <span>👥 {{ recipe.servings }}</span>
+                    {% endif %}
+                    <span class="capitalize">{{ recipe.difficulty }}</span>
+                </div>
+                {% if recipe.cuisine %}
+                <span class="inline-block mt-2 px-2 py-1 bg-dark-700 rounded text-xs">{{ recipe.cuisine }}</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="flex justify-center space-x-2 mt-8">
+        {% for p in range(1, pagination.pages + 1) %}
+        <a href="{{ url_for('recipes', page=p, search=search, difficulty=difficulty, cuisine=cuisine) }}"
+           class="px-4 py-2 rounded {% if p == pagination.page %}bg-accent-500 text-dark-900{% else %}bg-dark-700{% endif %}">
+            {{ p }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-12 card rounded-lg">
+        <div class="text-4xl mb-4">🍽️</div>
+        <h2 class="text-2xl font-bold mb-2">No recipes found</h2>
+        <p class="text-dark-400 mb-4">{% if search %}Try a different search{% else %}Add your first recipe to get started!{% endif %}</p>
+        <a href="{{ url_for('new_recipe') }}" class="btn-primary px-6 py-2 rounded">Add Recipe</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

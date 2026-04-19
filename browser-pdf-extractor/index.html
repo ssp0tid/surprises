@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline PDF Text Extractor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .dropzone {
+            border: 2px dashed #475569;
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        .dropzone:hover, .dropzone.active {
+            border-color: #6366f1;
+            background: #1e293b80;
+            transform: translateY(-2px);
+        }
+        .dropzone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .dropzone-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .dropzone-note {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        #fileInput { display: none; }
+        .status {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .status.loading {
+            display: block;
+            background: #1e293b;
+            border-left: 3px solid #6366f1;
+        }
+        .status.error {
+            display: block;
+            background: #7f1d1d40;
+            border-left: 3px solid #ef4444;
+            color: #fca5a5;
+        }
+        .result-container {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .result-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+        button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px #6366f140;
+        }
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-family: ui-monospace, 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+        }
+        textarea:focus {
+            border-color: #6366f1;
+        }
+        .footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .privacy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #16653440;
+            color: #86efac;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Offline PDF Text Extractor</h1>
+        <p class="subtitle">Extract text from any PDF file. 100% runs in your browser. Nothing is ever uploaded.</p>
+
+        <div id="dropzone" class="dropzone">
+            <div class="dropzone-icon">📄</div>
+            <div class="dropzone-text">Drop your PDF file here, or click to select</div>
+            <div class="dropzone-note">No servers. No tracking. All processing happens on your device.</div>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf">
+
+        <div id="status" class="status"></div>
+
+        <div id="resultContainer" class="result-container">
+            <div class="result-header">
+                <div class="result-title">Extracted Text</div>
+                <div class="btn-group">
+                    <button id="copyBtn" class="btn-primary">📋 Copy to Clipboard</button>
+                    <button id="downloadBtn" class="btn-secondary">💾 Download .txt</button>
+                    <button id="resetBtn" class="btn-secondary">🔄 New File</button>
+                </div>
+            </div>
+            <textarea id="resultText" readonly></textarea>
+        </div>
+
+        <div class="footer">
+            <div class="privacy-badge">✅ No files leave your computer</div>
+            <p>No account required. No data collected. Works offline.</p>
+        </div>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('active');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('active');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('active');
+            if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        });
+
+        async function processFile(file) {
+            if (file.type !== 'application/pdf') {
+                showStatus('error', '❌ Please select a valid PDF file');
+                return;
+            }
+
+            showStatus('loading', '<span class="spinner"></span> Extracting text from PDF...');
+            resultContainer.style.display = 'none';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n\n';
+                }
+
+                resultText.value = fullText.trim();
+                status.style.display = 'none';
+                resultContainer.style.display = 'block';
+
+            } catch (err) {
+                showStatus('error', `❌ Failed to parse PDF: ${err.message}`);
+            }
+        }
+
+        function showStatus(type, message) {
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+        }
+
+        copyBtn.addEventListener('click', async () => {
+            await navigator.clipboard.writeText(resultText.value);
+            const original = copyBtn.innerHTML;
+            copyBtn.innerHTML = '✅ Copied!';
+            setTimeout(() => copyBtn.innerHTML = original, 2000);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([resultText.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted-pdf-text.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            resultText.value = '';
+            resultContainer.style.display = 'none';
+            status.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

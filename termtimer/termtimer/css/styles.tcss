@@ -1,0 +1,196 @@
+/* TermTimer CSS Styles */
+
+/* Color scheme */
+$background: #1a1a2e;
+$surface: #16213e;
+$primary: #00d9ff;
+$secondary: #9d4edd;
+$warning: #ff6b35;
+$success: #39ff14;
+$text: #ffffff;
+$text-muted: #6b7280;
+
+/* Set the overall theme */
+App {
+    background: $background;
+    color: $text;
+}
+
+Screen {
+    background: $background;
+}
+
+/* Header and Footer */
+Header {
+    background: $surface;
+    color: $primary;
+}
+
+Footer {
+    background: $surface;
+    color: $text-muted;
+}
+
+/* Buttons */
+Button {
+    background: $surface;
+    color: $text;
+    border: solid $text-muted;
+}
+
+Button:hover {
+    background: $primary;
+    color: $background;
+}
+
+Button:focus {
+    border: solid $primary;
+}
+
+Button:pressed {
+    background: $secondary;
+}
+
+Button[variant="primary"] {
+    background: $primary;
+    color: $background;
+    border: solid $primary;
+}
+
+Button[variant="primary"]:hover {
+    background: $secondary;
+    color: $text;
+}
+
+Button[variant="default"] {
+    background: $surface;
+    color: $text;
+    border: solid $text-muted;
+}
+
+Button[variant="success"] {
+    background: $success;
+    color: $background;
+    border: solid $success;
+}
+
+Button[variant="warning"] {
+    background: $warning;
+    color: $background;
+    border: solid $warning;
+}
+
+/* Static text */
+Static {
+    color: $text;
+}
+
+#title {
+    text-style: bold;
+    color: $primary;
+}
+
+/* Input fields */
+Input {
+    background: $surface;
+    color: $text;
+    border: solid $text-muted;
+}
+
+Input:focus {
+    border: solid $primary;
+}
+
+/* Container styling */
+Container {
+    background: $background;
+}
+
+/* Vertical and horizontal containers */
+Vertical {
+    background: $background;
+}
+
+Horizontal {
+    background: $background;
+}
+
+/* Progress ring styling */
+ProgressRing {
+    color: $primary;
+}
+
+/* Timer display */
+TimeDisplay {
+    text-style: bold;
+    color: $primary;
+}
+
+/* Status text */
+#status {
+    color: $text-muted;
+}
+
+/* Mode buttons on home screen */
+.mode-button {
+    background: $surface;
+    border: solid $primary;
+}
+
+.mode-button:hover {
+    background: $primary;
+    color: $background;
+}
+
+/* Screen titles */
+#title {
+    text-align: center;
+    text-style: bold;
+    color: $accent;
+    margin-bottom: 1;
+}
+
+/* Timer container */
+#timer-container {
+    align: center middle;
+}
+
+/* Preset buttons */
+.preset-btn {
+    width: 8;
+    margin: 1;
+}
+
+/* Lap display */
+#laps-container {
+    border: solid $text-muted;
+    background: $surface;
+}
+
+/* Phase label */
+#phase-label {
+    text-style: bold;
+    color: $accent;
+}
+
+/* Session info */
+#session-info {
+    color: $text-muted;
+}
+
+/* Alarm list */
+#alarm-list {
+    border: solid $text-muted;
+    background: $surface;
+}
+
+/* Hint text */
+#hint {
+    color: $text-muted;
+    text-align: center;
+}
+
+/* Focus styles for keyboard navigation */
+*:focus {
+    border: solid $primary;
+}

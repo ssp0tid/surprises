@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ shopping_list.name }} - Shopping List{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+            <a href="{{ url_for('shopping_lists') }}" class="text-dark-400 hover:text-accent-500 mb-2">← Back to Lists</a>
+            <h1 class="text-3xl font-bold">{{ shopping_list.name }}</h1>
+            <p class="text-dark-400">Created {{ shopping_list.created_at.strftime('%B %d, %Y') }}</p>
+        </div>
+        
+        <div class="flex space-x-4 mt-4 md:mt-0">
+            <form method="POST" action="{{ url_for('delete_shopping_list', list_id=shopping_list.id) }}" 
+                  onsubmit="return confirm('Delete this shopping list?')">
+                <button type="submit" class="text-red-500 hover:text-red-400">Delete List</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    {% set total = shopping_list.items.count() %}
+    {% set checked = shopping_list.items.filter_by(checked=True).count() %}
+    <div class="flex space-x-6 mb-6">
+        <div class="text-center">
+            <div class="text-2xl font-bold">{{ total }}</div>
+            <div class="text-dark-400 text-sm">Total Items</div>
+        </div>
+        <div class="text-center">
+            <div class="text-2xl font-bold">{{ checked }}</div>
+            <div class="text-dark-400 text-sm">Checked</div>
+        </div>
+        <div class="text-center">
+            <div class="text-2xl font-bold">{{ total - checked }}</div>
+            <div class="text-dark-400 text-sm">Remaining</div>
+        </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    {% if total > 0 %}
+    <div class="w-full bg-dark-700 rounded-full h-4 mb-8">
+        <div class="bg-accent-500 h-4 rounded-full transition-all" style="width: {{ (checked / total * 100)|int }}%"></div>
+    </div>
+    {% endif %}
+    
+    <!-- Grouped Items -->
+    {% for category, items in grouped_items.items() %}
+    <div class="mb-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center">
+            <span>{{ category }}</span>
+            <span class="ml-2 text-dark-400 text-sm font-normal">{{ items|length }}</span>
+        </h2>
+        <div class="card rounded-lg overflow-hidden">
+            {% for item in items %}
+            <div class="flex items-center justify-between p-4 border-b border-dark-700 last:border-b-0 
+                        {% if item.checked %}opacity-50{% endif %}">
+                <div class="flex items-center">
+                    <form method="POST" action="{{ url_for('toggle_shopping_item', list_id=shopping_list.id, item_id=item.id) }}" 
+                          class="mr-4">
+                        <input type="checkbox" {% if item.checked %}checked{% endif %} 
+                               onchange="this.form.submit()" 
+                               class="w-5 h-5 rounded border-dark-600 bg-dark-700 accent-accent-500">
+                    </form>
+                    <span class="{% if item.checked %}line-through text-dark-400{% endif %}">
+                        {{ item.ingredient_name }}
+                    </span>
+                </div>
+                <span class="text-dark-400">
+                    {% if item.quantity %}{{ item.quantity }}{% endif %}
+                    {% if item.unit %} {{ item.unit }}{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not grouped_items %}
+    <div class="text-center py-12 card rounded-lg">
+        <div class="text-4xl mb-4">🛒</div>
+        <h2 class="text-2xl font-bold mb-2">Empty list</h2>
+        <p class="text-dark-400">This shopping list has no items</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

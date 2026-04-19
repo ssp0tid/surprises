@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block title %}Home - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Hero Section -->
+    {% if not current_user.is_authenticated %}
+    <div class="text-center py-16">
+        <h1 class="text-5xl font-bold mb-4">Manage Your Recipes</h1>
+        <p class="text-xl text-dark-400 mb-8">Plan meals, generate shopping lists, and track nutrition.</p>
+        <a href="{{ url_for('register') }}" class="btn-primary px-8 py-3 rounded-lg font-semibold text-lg">Get Started</a>
+    </div>
+    {% else %}
+    <!-- Welcome -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold">Welcome back, {{ current_user.username }}!</h1>
+        <p class="text-dark-400">What would you like to cook today?</p>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <a href="{{ url_for('new_recipe') }}" class="card p-6 rounded-lg hover:border-accent-500 transition">
+            <div class="text-3xl mb-2">📝</div>
+            <h3 class="font-semibold">New Recipe</h3>
+            <p class="text-dark-400 text-sm">Add a new recipe</p>
+        </a>
+        <a href="{{ url_for('search') }}" class="card p-6 rounded-lg hover:border-accent-500 transition">
+            <div class="text-3xl mb-2">🔍</div>
+            <h3 class="font-semibold">Search</h3>
+            <p class="text-dark-400 text-sm">Find a recipe</p>
+        </a>
+        <a href="{{ url_for('meal_plan') }}" class="card p-6 rounded-lg hover:border-accent-500 transition">
+            <div class="text-3xl mb-2">📅</div>
+            <h3 class="font-semibold">Meal Plan</h3>
+            <p class="text-dark-400 text-sm">Plan your week</p>
+        </a>
+        <a href="{{ url_for('shopping_lists') }}" class="card p-6 rounded-lg hover:border-accent-500 transition">
+            <div class="text-3xl mb-2">🛒</div>
+            <h3 class="font-semibold">Shopping</h3>
+            <p class="text-dark-400 text-sm">Create a list</p>
+        </a>
+    </div>
+    
+    <!-- Today's Meals -->
+    {% if meal_plan_today %}
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Today's Meals</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {% for mp in meal_plan_today %}
+            <a href="{{ url_for('recipe', recipe_id=mp.recipe.id) }}" class="card p-4 rounded-lg hover:border-accent-500">
+                <div class="text-sm text-dark-400 uppercase">{{ mp.meal_type }}</div>
+                <h3 class="font-semibold">{{ mp.recipe.title }}</h3>
+                <p class="text-dark-400 text-sm">{{ mp.servings }} serving{{ 's' if mp.servings > 1 else '' }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recent Recipes -->
+    {% if recipes %}
+    <div>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Recent Recipes</h2>
+            <a href="{{ url_for('recipes') }}" class="text-accent-500 hover:text-accent-600">View all</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for recipe in recipes %}
+            <a href="{{ url_for('recipe', recipe_id=recipe.id) }}" class="card rounded-lg overflow-hidden hover:border-accent-500 transition">
+                {% if recipe.image_url %}
+                <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-dark-700 flex items-center justify-center text-4xl">🍳</div>
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg">{{ recipe.title }}</h3>
+                    {% if recipe.description %}
+                    <p class="text-dark-400 text-sm line-clamp-2">{{ recipe.description }}</p>
+                    {% endif %}
+                    <div class="flex items-center space-x-4 mt-3 text-dark-400 text-sm">
+                        {% if recipe.prep_time or recipe.cook_time %}
+                        <span>⏱️ {{ (recipe.prep_time or 0) + (recipe.cook_time or 0) }} min</span>
+                        {% endif %}
+                        {% if recipe.servings %}
+                        <span>👥 {{ recipe.servings }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12 card rounded-lg">
+        <div class="text-4xl mb-4">🍽️</div>
+        <h2 class="text-2xl font-bold mb-2">No recipes yet</h2>
+        <p class="text-dark-400 mb-4">Add your first recipe to get started!</p>
+        <a href="{{ url_for('new_recipe') }}" class="btn-primary px-6 py-2 rounded">Add Recipe</a>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

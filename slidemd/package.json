@@ -1,0 +1,31 @@
+{
+  "name": "slidemd",
+  "version": "1.0.0",
+  "description": "Single-file markdown presentation generator",
+  "main": "src/cli.js",
+  "bin": {
+    "slidemd": "./bin/slidemd"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node bin/slidemd",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "markdown",
+    "presentation",
+    "slides",
+    "html"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "js-yaml": "^4.1.0",
+    "marked": "^11.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

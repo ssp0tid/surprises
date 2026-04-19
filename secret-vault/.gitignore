@@ -1,0 +1,19 @@
+# Binaries
+secret-vault
+*.exe
+
+# Test coverage
+coverage.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Vault files (user data)
+*.vault
+*.enc

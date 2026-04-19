@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block title %}New Recipe - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">New Recipe</h1>
+        
+        <form method="POST" id="recipeForm" class="space-y-6">
+            <!-- Basic Info -->
+            <div class="card rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Basic Info</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="title" class="block text-sm font-medium mb-2">Title *</label>
+                        <input type="text" id="title" name="title" required maxlength="200"
+                               class="input-field w-full px-4 py-2 rounded" placeholder="Recipe title">
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium mb-2">Description</label>
+                        <textarea id="description" name="description" rows="3"
+                                  class="input-field w-full px-4 py-2 rounded" placeholder="Brief description"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="prep_time" class="block text-sm font-medium mb-2">Prep (min)</label>
+                            <input type="number" id="prep_time" name="prep_time" min="0"
+                                   class="input-field w-full px-4 py-2 rounded" placeholder="0">
+                        </div>
+                        <div>
+                            <label for="cook_time" class="block text-sm font-medium mb-2">Cook (min)</label>
+                            <input type="number" id="cook_time" name="cook_time" min="0"
+                                   class="input-field w-full px-4 py-2 rounded" placeholder="0">
+                        </div>
+                        <div>
+                            <label for="servings" class="block text-sm font-medium mb-2">Servings</label>
+                            <input type="number" id="servings" name="servings" min="1" value="4"
+                                   class="input-field w-full px-4 py-2 rounded" placeholder="4">
+                        </div>
+                        <div>
+                            <label for="difficulty" class="block text-sm font-medium mb-2">Difficulty</label>
+                            <select id="difficulty" name="difficulty" class="input-field w-full px-4 py-2 rounded">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="cuisine" class="block text-sm font-medium mb-2">Cuisine</label>
+                            <input type="text" id="cuisine" name="cuisine"
+                                   class="input-field w-full px-4 py-2 rounded" placeholder="e.g., Italian">
+                        </div>
+                        <div>
+                            <label for="image_url" class="block text-sm font-medium mb-2">Image URL</label>
+                            <input type="url" id="image_url" name="image_url"
+                                   class="input-field w-full px-4 py-2 rounded" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ingredients -->
+            <div class="card rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Ingredients</h2>
+                    <button type="button" onclick="addIngredient()" class="text-accent-500 hover:text-accent-600">
+                        + Add Ingredient
+                    </button>
+                </div>
+                
+                <div id="ingredientsList" class="space-y-3">
+                    <!-- Dynamic ingredients will be added here -->
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="card rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Instructions *</h2>
+                <textarea id="instructions" name="instructions" rows="10" required
+                          class="input-field w-full px-4 py-2 rounded font-mono" 
+                          placeholder="1. First step...&#10;2. Second step...&#10;3. ..."></textarea>
+            </div>
+            
+            <!-- Submit -->
+            <button type="submit" class="btn-primary w-full py-3 rounded font-semibold text-lg">
+                Create Recipe
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let ingredientCount = 0;
+
+function addIngredient(name = '', quantity = '', unit = 'g', notes = '') {
+    const container = document.getElementById('ingredientsList');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 items-center';
+    div.innerHTML = `
+        <input type="text" name="ingredient_name[]" value="${name}" placeholder="Ingredient name"
+               class="input-field flex-grow px-4 py-2 rounded" list="ingredientList">
+        <input type="number" name="ingredient_quantity[]" value="${quantity}" placeholder="Qty" step="0.1"
+               class="input-field w-20 px-4 py-2 rounded">
+        <input type="text" name="ingredient_unit[]" value="${unit}" placeholder="Unit"
+               class="input-field w-24 px-4 py-2 rounded">
+        <input type="text" name="ingredient_notes[]" value="${notes}" placeholder="Notes"
+               class="input-field w-32 px-4 py-2 rounded">
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-400 p-2">✕</button>
+    `;
+    container.appendChild(div);
+    ingredientCount++;
+    
+    // Initialize datalist for autocomplete
+    initIngredientDatalist();
+}
+
+async function initIngredientDatalist() {
+    const datalist = document.getElementById('ingredientList');
+    if (!datalist) {
+        const newDatalist = document.createElement('datalist');
+        newDatalist.id = 'ingredientList';
+        document.body.appendChild(newDatalist);
+    }
+    
+    try {
+        const response = await fetch('/api/ingredients');
+        const ingredients = await response.json();
+        const dl = document.getElementById('ingredientList');
+        dl.innerHTML = ingredients.map(i => `<option value="${i.name}">`).join('');
+    } catch (e) {
+        console.error('Failed to load ingredients:', e);
+    }
+}
+
+// Add initial ingredient row
+addIngredient();
+
+// Add some sample common ingredients
+const commonIngredients = [
+    {name: 'Chicken Breast', unit: 'g'},
+    {name: 'Brown Rice', unit: 'g'},
+    {name: 'Broccoli', unit: 'g'},
+    {name: 'Olive Oil', unit: 'ml'},
+    {name: 'Garlic', unit: 'g'},
+];
+
+// Load ingredients on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initIngredientDatalist();
+});
+</script>
+{% endblock %}

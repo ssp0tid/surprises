@@ -1,0 +1,48 @@
+[workspace]
+resolver = "2"
+members = [
+    "shellmem-core",
+    "shellmem-cli",
+    "shellmem-tui",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["ShellMem Team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/shellmem/shellmem"
+rust-version = "1.70"
+
+[workspace.dependencies]
+# Core dependencies
+rusqlite = { version = "0.39", features = ["bundled"] }
+fuzzy-matcher = "0.21"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1.0", features = ["full"] }
+thiserror = "1.0"
+notify = "6.0"
+sha2 = "0.10"
+hex = "0.4"
+dirs = "5.0"
+toml = "0.8"
+
+# CLI dependencies
+clap = { version = "5.0", features = ["derive"] }
+clap_complete = "5.0"
+
+# TUI dependencies
+ratatui = "0.30"
+crossterm = "0.29"
+color-eyre = "0.6"
+
+# Common dependencies
+csv = "1.3"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

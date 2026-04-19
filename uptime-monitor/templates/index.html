@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>⏱️ Uptime Monitor</h1>
+            <div class="status-bar">
+                <span id="total-monitors">0</span> monitors | 
+                <span class="up" id="up-monitors">0</span> up | 
+                <span class="down" id="down-monitors">0</span> down
+                <span class="refresh" id="last-refresh"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="add-form">
+            <h2>Add New Monitor</h2>
+            <form id="add-monitor-form">
+                <input type="text" id="name-input" placeholder="Website name (optional)" autocomplete="off">
+                <input type="url" id="url-input" placeholder="https://example.com" required autocomplete="off">
+                <button type="submit">Add Monitor</button>
+            </form>
+        </div>
+
+        <div id="monitors-list">
+            <!-- Monitors will be inserted here -->
+        </div>
+
+        <div id="history-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Check History</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div id="history-content"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

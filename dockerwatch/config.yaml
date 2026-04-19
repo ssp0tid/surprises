@@ -1,0 +1,32 @@
+app:
+  name: "DockerWatch"
+  refresh_interval: 2s
+  log_buffer_size: 1000
+  max_history_points: 60
+
+docker:
+  host: ""
+  api_version: ""
+  timeout: 10s
+  max_retries: 3
+
+ui:
+  theme: "dark"
+  color_scheme: "default"
+  show_stopped: true
+  show_system: false
+  compact_mode: false
+
+columns:
+  visible: ["name", "status", "cpu", "memory", "network", "uptime"]
+  order: ["name", "status", "cpu", "memory", "network", "uptime"]
+
+shortcuts:
+  quit: "q"
+  help: "?"
+  refresh: "r"
+  start: "s"
+  stop: "x"
+  restart: "R"
+  logs: "l"
+  details: "Enter"

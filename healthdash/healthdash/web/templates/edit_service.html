@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ service.name }} - HealthDash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Service</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.edit_service', service_id=service.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ service.name }}"
+                               required minlength="1" maxlength="100" 
+                               placeholder="e.g., My API">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="url" name="url" 
+                               value="{{ service.url }}"
+                               required 
+                               placeholder="https://api.example.com/health">
+                        <div class="form-text text-muted">Must start with http:// or https://</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="method" class="form-label">HTTP Method</label>
+                        <select class="form-select" id="method" name="method">
+                            <option value="GET" {% if service.method == 'GET' %}selected{% endif %}>GET</option>
+                            <option value="POST" {% if service.method == 'POST' %}selected{% endif %}>POST</option>
+                            <option value="HEAD" {% if service.method == 'HEAD' %}selected{% endif %}>HEAD</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expected_status" class="form-label">Expected Status Code</label>
+                        <input type="number" class="form-control" id="expected_status" 
+                               name="expected_status" value="{{ service.expected_status }}" 
+                               min="100" max="599" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="check_interval" class="form-label">Check Interval (seconds)</label>
+                            <input type="number" class="form-control" id="check_interval" 
+                                   name="check_interval" value="{{ service.check_interval }}" 
+                                   min="10" max="3600" required>
+                            <div class="form-text text-muted">10-3600 seconds</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="timeout" class="form-label">Timeout (seconds)</label>
+                            <input type="number" class="form-control" id="timeout" 
+                                   name="timeout" value="{{ service.timeout }}" 
+                                   min="1" max="60" required>
+                            <div class="form-text text-muted">1-60 seconds</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_active" 
+                               name="is_active" {% if service.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="is_active">
+                            Active (enable health checks)
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{{ url_for('web.service_detail', service_id=service.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

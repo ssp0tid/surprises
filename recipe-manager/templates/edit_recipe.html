@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Recipe - Recipe Manager{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Edit Recipe</h1>
+        
+        <form method="POST" class="space-y-6">
+            <!-- Basic Info -->
+            <div class="card rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Basic Info</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="title" class="block text-sm font-medium mb-2">Title *</label>
+                        <input type="text" id="title" name="title" required maxlength="200"
+                               class="input-field w-full px-4 py-2 rounded" value="{{ recipe.title }}">
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium mb-2">Description</label>
+                        <textarea id="description" name="description" rows="3"
+                                  class="input-field w-full px-4 py-2 rounded">{{ recipe.description or '' }}</textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="prep_time" class="block text-sm font-medium mb-2">Prep (min)</label>
+                            <input type="number" id="prep_time" name="prep_time" min="0"
+                                   class="input-field w-full px-4 py-2 rounded" value="{{ recipe.prep_time or '' }}">
+                        </div>
+                        <div>
+                            <label for="cook_time" class="block text-sm font-medium mb-2">Cook (min)</label>
+                            <input type="number" id="cook_time" name="cook_time" min="0"
+                                   class="input-field w-full px-4 py-2 rounded" value="{{ recipe.cook_time or '' }}">
+                        </div>
+                        <div>
+                            <label for="servings" class="block text-sm font-medium mb-2">Servings</label>
+                            <input type="number" id="servings" name="servings" min="1"
+                                   class="input-field w-full px-4 py-2 rounded" value="{{ recipe.servings or 4 }}">
+                        </div>
+                        <div>
+                            <label for="difficulty" class="block text-sm font-medium mb-2">Difficulty</label>
+                            <select id="difficulty" name="difficulty" class="input-field w-full px-4 py-2 rounded">
+                                <option value="easy" {% if recipe.difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                                <option value="medium" {% if recipe.difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="hard" {% if recipe.difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="cuisine" class="block text-sm font-medium mb-2">Cuisine</label>
+                            <input type="text" id="cuisine" name="cuisine"
+                                   class="input-field w-full px-4 py-2 rounded" value="{{ recipe.cuisine or '' }}">
+                        </div>
+                        <div>
+                            <label for="image_url" class="block text-sm font-medium mb-2">Image URL</label>
+                            <input type="url" id="image_url" name="image_url"
+                                   class="input-field w-full px-4 py-2 rounded" value="{{ recipe.image_url or '' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ingredients -->
+            <div class="card rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Ingredients</h2>
+                    <button type="button" onclick="addIngredient()" class="text-accent-500 hover:text-accent-600">
+                        + Add Ingredient
+                    </button>
+                </div>
+                
+                <div id="ingredientsList" class="space-y-3">
+                    <!-- Existing ingredients -->
+                    {% for ingredient in recipe.ingredients %}
+                    <div class="flex gap-2 items-center">
+                        <input type="text" name="ingredient_name[]" value="{{ ingredient.ingredient.name }}" 
+                               class="input-field flex-grow px-4 py-2 rounded">
+                        <input type="number" name="ingredient_quantity[]" value="{{ ingredient.quantity }}" 
+                               step="0.1" class="input-field w-20 px-4 py-2 rounded">
+                        <input type="text" name="ingredient_unit[]" value="{{ ingredient.unit }}" 
+                               class="input-field w-24 px-4 py-2 rounded">
+                        <input type="text" name="ingredient_notes[]" value="{{ ingredient.notes or '' }}" 
+                               class="input-field w-32 px-4 py-2 rounded">
+                        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-400 p-2">✕</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="card rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Instructions *</h2>
+                <textarea id="instructions" name="instructions" rows="10" required
+                          class="input-field w-full px-4 py-2 rounded font-mono">{{ recipe.instructions }}</textarea>
+            </div>
+            
+            <!-- Submit -->
+            <button type="submit" class="btn-primary w-full py-3 rounded font-semibold text-lg">
+                Update Recipe
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+function addIngredient(name = '', quantity = '', unit = 'g', notes = '') {
+    const container = document.getElementById('ingredientsList');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 items-center';
+    div.innerHTML = `
+        <input type="text" name="ingredient_name[]" value="${name}" placeholder="Ingredient name"
+               class="input-field flex-grow px-4 py-2 rounded">
+        <input type="number" name="ingredient_quantity[]" value="${quantity}" placeholder="Qty" step="0.1"
+               class="input-field w-20 px-4 py-2 rounded">
+        <input type="text" name="ingredient_unit[]" value="${unit}" placeholder="Unit"
+               class="input-field w-24 px-4 py-2 rounded">
+        <input type="text" name="ingredient_notes[]" value="${notes}" placeholder="Notes"
+               class="input-field w-32 px-4 py-2 rounded">
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-400 p-2">✕</button>
+    `;
+    container.appendChild(div);
+}
+</script>
+{% endblock %}

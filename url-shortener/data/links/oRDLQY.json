@@ -1,0 +1,14 @@
+{
+  "short_code": "oRDLQY",
+  "original_url": "https://example.com/test",
+  "created_at": "2026-04-15T20:26:44.495226+00:00",
+  "click_count": 1,
+  "clicks": [
+    {
+      "timestamp": "2026-04-15T20:30:53.228931+00:00",
+      "referrer": "direct",
+      "user_agent": "curl/8.14.1",
+      "ip": "127.0.0.1"
+    }
+  ]
+}

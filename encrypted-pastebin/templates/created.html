@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paste Created - Encrypted Pastebin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #3fb950;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 32px;
+        }
+
+        .url-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .url-label {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+
+        .url {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #58a6ff;
+            word-break: break-all;
+            font-size: 0.95rem;
+        }
+
+        .url a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .url a:hover {
+            text-decoration: underline;
+        }
+
+        .copy-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #238636;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .copy-btn:hover {
+            background: #2ea043;
+        }
+
+        .warning {
+            background: rgba(187, 128, 9, 0.15);
+            border: 1px solid #d29922;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 20px;
+            color: #d29922;
+            font-size: 0.9rem;
+        }
+
+        .warning-icon {
+            margin-right: 8px;
+        }
+
+        .info {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid #388bfd;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            color: #58a6ff;
+            font-size: 0.9rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #2ea043;
+        }
+
+        .btn-secondary {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">&#10003;</div>
+        <h1>Paste Created Successfully</h1>
+        <p class="subtitle">Your encrypted paste has been stored</p>
+
+        <div class="url-box">
+            <div class="url-label">Share this URL:</div>
+            <div class="url">
+                <a href="{{ view_url }}">{{ view_url }}</a>
+            </div>
+        </div>
+
+        <button class="copy-btn" onclick="copyUrl()">Copy URL</button>
+
+        {% if has_password %}
+        <div class="info">
+            This paste is password protected. Recipients will be prompted for a password when viewing.
+        </div>
+        {% endif %}
+
+        {% if paste_id %}
+        <div class="warning">
+            <span class="warning-icon">&#9888;</span>
+            Save your URL now! This is the only time you'll see it.
+        </div>
+        {% endif %}
+
+        <div class="btn-group">
+            <a href="{{ url_for('view', paste_id=paste_id) }}" class="btn btn-primary">View Paste</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Create Another</a>
+        </div>
+    </div>
+
+    <script>
+        function copyUrl() {
+            const url = "{{ view_url }}";
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy URL';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

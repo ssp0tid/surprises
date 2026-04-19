@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Broken Link Checker</title>
+    <script>
+        tailwindConfig = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        success: '#16a34a',
+                        warning: '#ca8a04',
+                        danger: '#dc2626',
+                        neutral: '#64748b'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center gap-3 mb-3">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-slate-900">Markdown Broken Link Checker</h1>
+            </div>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                Check all links in your markdown documents for broken URLs. 100% private, runs entirely in your browser. No data is uploaded anywhere.
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Upload Markdown File</label>
+                    <div id="dropzone" class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
+                        <svg class="w-12 h-12 mx-auto text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-slate-600 mb-1">Drag & drop markdown file here</p>
+                        <p class="text-slate-400 text-sm">or click to browse</p>
+                        <input type="file" id="fileInput" accept=".md,.markdown,.txt" class="hidden">
+                    </div>
+                </div>
+
+                <!-- Paste Text -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Or Paste Markdown Text</label>
+                    <textarea id="markdownInput" rows="7" class="w-full border border-slate-300 rounded-lg p-3 text-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none" placeholder="Paste your markdown content here..."></textarea>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-4 justify-center">
+                <button id="checkBtn" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-colors shadow-sm">
+                    Check Links
+                </button>
+                <button id="clearBtn" class="px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div id="progressSection" class="hidden mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-medium text-slate-700">Checking links...</span>
+                    <span id="progressCount" class="text-slate-500">0 / 0</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                    <div id="progressBar" class="bg-primary h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsSection" class="hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Results</h2>
+                        <div class="flex gap-6 mt-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-success"></div>
+                                <span class="text-slate-600">Working: <span id="workingCount" class="font-medium">0</span></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-danger"></div>
+                                <span class="text-slate-600">Broken: <span id="brokenCount" class="font-medium">0</span></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-warning"></div>
+                                <span class="text-slate-600">Warning: <span id="warningCount" class="font-medium">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="downloadBtn" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg transition-colors text-sm">
+                        Download Report
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-slate-200">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-left">
+                                <th class="px-4 py-3 font-medium text-slate-700">Status</th>
+                                <th class="px-4 py-3 font-medium text-slate-700">Code</th>
+                                <th class="px-4 py-3 font-medium text-slate-700">URL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 text-sm mt-12">
+            <p>All processing happens locally in your browser. Your content never leaves your device.</p>
+        </footer>
+    </div>
+
+    <script>
+        const URL_REGEX = /\[.*?\]\((https?:\/\/[^\s\)]+)\)|(https?:\/\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=%]+)/g;
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const markdownInput = document.getElementById('markdownInput');
+        const checkBtn = document.getElementById('checkBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressCount = document.getElementById('progressCount');
+        const progressBar = document.getElementById('progressBar');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsTable = document.getElementById('resultsTable');
+        const workingCount = document.getElementById('workingCount');
+        const brokenCount = document.getElementById('brokenCount');
+        const warningCount = document.getElementById('warningCount');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let results = [];
+
+        // Dropzone handlers
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('border-primary'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-primary'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('border-primary');
+            if (e.dataTransfer.files.length) {
+                readFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', e => e.target.files.length && readFile(e.target.files[0]));
+
+        function readFile(file) {
+            const reader = new FileReader();
+            reader.onload = e => markdownInput.value = e.target.result;
+            reader.readAsText(file);
+        }
+
+        function extractUrls(text) {
+            const urls = new Set();
+            let match;
+            while ((match = URL_REGEX.exec(text)) !== null) {
+                const url = match[1] || match[2];
+                if (url) urls.add(url);
+            }
+            return Array.from(urls);
+        }
+
+        async function checkLink(url, timeout = 8000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    signal: controller.signal
+                }).catch(() => fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    signal: controller.signal
+                }));
+
+                clearTimeout(timer);
+
+                if (response.type === 'opaque') {
+                    return { url, status: 'warning', code: 'CORS Blocked', ok: null };
+                }
+
+                if (response.ok) {
+                    return { url, status: 'success', code: response.status, ok: true };
+                } else {
+                    return { url, status: 'danger', code: response.status, ok: false };
+                }
+
+            } catch (err) {
+                clearTimeout(timer);
+                if (err.name === 'AbortError') {
+                    return { url, status: 'warning', code: 'Timeout', ok: null };
+                }
+                return { url, status: 'danger', code: 'Failed', ok: false };
+            }
+        }
+
+        checkBtn.addEventListener('click', async () => {
+            const content = markdownInput.value.trim();
+            if (!content) {
+                alert('Please upload a file or paste markdown text first.');
+                return;
+            }
+
+            const urls = extractUrls(content);
+            if (urls.length === 0) {
+                alert('No URLs found in the provided markdown.');
+                return;
+            }
+
+            results = [];
+            progressSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            progressCount.textContent = `0 / ${urls.length}`;
+            progressBar.style.width = '0%';
+
+            let completed = 0;
+            let working = 0, broken = 0, warning = 0;
+
+            resultsTable.innerHTML = '';
+
+            for (const url of urls) {
+                const result = await checkLink(url);
+                results.push(result);
+
+                completed++;
+                progressCount.textContent = `${completed} / ${urls.length}`;
+                progressBar.style.width = `${Math.round((completed / urls.length) * 100)}%`;
+
+                if (result.ok === true) working++;
+                else if (result.ok === false) broken++;
+                else warning++;
+
+                workingCount.textContent = working;
+                brokenCount.textContent = broken;
+                warningCount.textContent = warning;
+
+                const statusLabel = result.status === 'success' ? 'Working' : result.status === 'danger' ? 'Broken' : 'Warning';
+                const badgeClass = result.status === 'success' ? 'bg-green-100 text-green-700' : result.status === 'danger' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
+
+                const row = document.createElement('tr');
+                row.className = 'border-t border-slate-100 hover:bg-slate-50';
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            ${statusLabel}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-slate-600">${result.code}</td>
+                    <td class="px-4 py-3">
+                        <a href="${result.url}" target="_blank" rel="noopener" class="text-primary hover:underline truncate block max-w-xl">${result.url}</a>
+                    </td>
+                `;
+                resultsTable.appendChild(row);
+            }
+
+            progressSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+        });
+
+        clearBtn.addEventListener('click', () => {
+            markdownInput.value = '';
+            fileInput.value = '';
+            resultsSection.classList.add('hidden');
+            progressSection.classList.add('hidden');
+            results = [];
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            let report = 'MARKDOWN LINK CHECKER REPORT\n';
+            report += '='.repeat(50) + '\n\n';
+            report += `Generated: ${new Date().toLocaleString()}\n`;
+            report += `Total links checked: ${results.length}\n`;
+            report += `Working: ${results.filter(r => r.ok === true).length}\n`;
+            report += `Broken: ${results.filter(r => r.ok === false).length}\n`;
+            report += `Warnings: ${results.filter(r => r.ok === null).length}\n\n`;
+
+            report += 'DETAILS:\n';
+            report += '-'.repeat(50) + '\n';
+
+            results.forEach(r => {
+                const status = r.ok === true ? '✅ WORKING' : r.ok === false ? '❌ BROKEN' : '⚠️ WARNING';
+                report += `\n${status} (${r.code})\n${r.url}\n`;
+            });
+
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `link-check-report-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
