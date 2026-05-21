@@ -1,0 +1,29 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">File Changes</h5>
+    </div>
+    <div class="card-body">
+        <div id="filesLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="filesContent" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>File Path</th>
+                        <th>Changes</th>
+                        <th>Insertions</th>
+                        <th>Deletions</th>
+                        <th>Last Changed</th>
+                    </tr>
+                </thead>
+                <tbody id="filesTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="filesError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

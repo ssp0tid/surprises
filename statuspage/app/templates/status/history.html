@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.name }} - History{% endblock %}
+
+{% block head %}
+<style>
+    :root {
+        --primary-color: {{ branding.get('primary_color', '#2563eb') }};
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="status-page history-page">
+    <header class="status-header">
+        <div class="container">
+            <h1>{{ organization.name }} - History</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('status.public_page', org_slug=organization.slug) }}">Back to Status</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="uptime-charts">
+        <div class="container">
+            <h2>Uptime Overview</h2>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Last 24 Hours</h3>
+                    <canvas id="chart-24h"></canvas>
+                    <div class="chart-stat">
+                        <span class="stat-value">{{ "%.2f"|format(uptime_24h) }}%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Last 7 Days</h3>
+                    <canvas id="chart-7d"></canvas>
+                    <div class="chart-stat">
+                        <span class="stat-value">{{ "%.2f"|format(uptime_7d) }}%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Last 30 Days</h3>
+                    <canvas id="chart-30d"></canvas>
+                    <div class="chart-stat">
+                        <span class="stat-value">{{ "%.2f"|format(uptime_30d) }}%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="components-history">
+        <div class="container">
+            <h2>Component History</h2>
+            {% for component in components %}
+            <div class="component-history-card">
+                <div class="component-header">
+                    <h3>{{ component.name }}</h3>
+                    <span class="status-badge {{ component.get_status() }}">{{ component.get_status() }}</span>
+                </div>
+                <div class="component-stats">
+                    <div class="stat">
+                        <span class="stat-value">{{ "%.2f"|format(component.get_uptime(1)) }}%</span>
+                        <span class="stat-label">24h</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">{{ "%.2f"|format(component.get_uptime(7)) }}%</span>
+                        <span class="stat-label">7d</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">{{ "%.2f"|format(component.get_uptime(30)) }}%</span>
+                        <span class="stat-label">30d</span>
+                    </div>
+                </div>
+                <div class="component-chart">
+                    <canvas id="chart-{{ component.id }}"></canvas>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="incidents-history">
+        <div class="container">
+            <h2>Past Incidents</h2>
+            {% if past_incidents %}
+            <div class="incidents-list">
+                {% for incident in past_incidents %}
+                <div class="incident-item">
+                    <div class="incident-header">
+                        <h3>
+                            <a href="{{ url_for('status.incident', org_slug=organization.slug, incident_id=incident.id) }}">
+                                {{ incident.title }}
+                            </a>
+                        </h3>
+                        <span class="badge badge-{{ incident.severity }}">{{ incident.severity }}</span>
+                    </div>
+                    <div class="incident-meta">
+                        <time>{{ incident.created_at | datetime }}</time>
+                        {% if incident.resolved_at %}
+                        <span>to</span>
+                        <time>{{ incident.resolved_at | datetime }}</time>
+                        {% endif %}
+                    </div>
+                    <p>{{ incident.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state">No past incidents.</p>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+{% block scripts %}
+<script>
+    // Chart.js configuration
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    };
+
+    // Initialize charts with data from server
+    // 24h chart
+    new Chart(document.getElementById('chart-24h'), {
+        type: 'line',
+        data: {{ chart_data_24h | tojson }},
+        options: chartOptions
+    });
+
+    // 7d chart
+    new Chart(document.getElementById('chart-7d'), {
+        type: 'line',
+        data: {{ chart_data_7d | tojson }},
+        options: chartOptions
+    });
+
+    // 30d chart
+    new Chart(document.getElementById('chart-30d'), {
+        type: 'line',
+        data: {{ chart_data_30d | tojson }},
+        options: chartOptions
+    });
+</script>
+{% endblock %}
+{% endblock %}

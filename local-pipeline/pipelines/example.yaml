@@ -1,0 +1,48 @@
+name: "example-pipeline"
+description: "Example pipeline demonstrating all features"
+version: "1.0"
+
+triggers:
+  - type: cron
+    cron: "0 * * *"
+  - type: webhook
+  - type: manual
+
+retry:
+  max_attempts: 3
+  backoff_factor: 2.0
+  initial_delay: 1
+
+default_timeout: 300
+
+tasks:
+  - id: task_1
+    name: "Fetch Data"
+    type: shell
+    command: "echo 'Fetching data...'"
+    timeout: 60
+
+  - id: task_2
+    name: "Process Data"
+    type: shell
+    command: "echo 'Processing data...'"
+    dependencies: [task_1]
+    timeout: 120
+
+  - id: task_3
+    name: "Upload Results"
+    type: shell
+    command: "echo 'Uploading results...'"
+    dependencies: [task_2]
+
+  - id: task_4a
+    name: "Parallel Task A"
+    type: shell
+    command: "echo 'Running task 4a'"
+    dependencies: [task_1]
+
+  - id: task_4b
+    name: "Parallel Task B"
+    type: shell
+    command: "echo 'Running task 4b'"
+    dependencies: [task_1]

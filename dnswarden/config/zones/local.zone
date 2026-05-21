@@ -1,0 +1,17 @@
+# Local zone definitions
+# Format: host (without zone suffix), type, value
+# Example:
+#   - host: server
+#     type: A
+#     value: 192.168.1.10
+
+zones:
+  local.lan:
+    - host: server
+      type: A
+      value: 192.168.1.10
+      ttl: 300
+    - host: printer
+      type: A
+      value: 192.168.1.20
+      ttl: 300

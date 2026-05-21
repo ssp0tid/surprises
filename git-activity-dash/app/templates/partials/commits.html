@@ -1,0 +1,33 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Commit History</h5>
+    </div>
+    <div class="card-body">
+        <div id="commitsLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="commitsContent" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>SHA</th>
+                        <th>Author</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Changes</th>
+                    </tr>
+                </thead>
+                <tbody id="commitsTableBody">
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination" id="commitsPagination">
+                </ul>
+            </nav>
+        </div>
+        <div id="commitsError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

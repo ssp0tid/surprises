@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ certificate.name }} - Local CA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{{ url_for('cert_list') }}" class="text-decoration-none">&larr; Back to Certificates</a>
+        <h1 class="mb-0 mt-2">{{ certificate.name }}</h1>
+    </div>
+    <div class="btn-group">
+        <a href="{{ url_for('cert_download', cert_id=certificate.id) }}" class="btn btn-outline-primary">
+            <i class="bi bi-download"></i> Download Cert
+        </a>
+        {% if certificate.key_path %}
+        <a href="{{ url_for('cert_download_key', cert_id=certificate.id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-key"></i> Download Key
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Certificate Details</span>
+                <form action="{{ url_for('cert_delete', cert_id=certificate.id) }}" method="post" onsubmit="return confirm('Are you sure?')" class="mb-0">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th class="text-muted" style="width: 150px;">Common Name</th>
+                        <td>{{ certificate.common_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Subject</th>
+                        <td>{{ certificate.subject }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Serial Number</th>
+                        <td><code>{{ certificate.serial_number }}</code></td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Valid From</th>
+                        <td>{{ certificate.not_before.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Valid Until</th>
+                        <td>{{ certificate.not_after.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    {% if certificate.san %}
+                    <tr>
+                        <th class="text-muted">SAN</th>
+                        <td>{{ certificate.san|join(', ') }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th class="text-muted">Certificate</th>
+                        <td><code>{{ certificate.cert_path }}</code></td>
+                    </tr>
+                    {% if certificate.key_path %}
+                    <tr>
+                        <th class="text-muted">Private Key</th>
+                        <td><code>{{ certificate.key_path }}</code></td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">Certificate Chain</div>
+            <div class="card-body">
+                {% for c in chain %}
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            {% if loop.first %}
+                                <i class="bi bi-file-earmark-lock-fill text-success"></i>
+                            {% else %}
+                                <i class="bi bi-award text-{{ 'primary' if c.type == 'root' else 'secondary' }}"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="fw-medium">{{ c.name }}</div>
+                            <small class="text-muted">{{ c.common_name if c.common_name else c.type }}</small>
+                        </div>
+                    </div>
+                    {% if not loop.last %}
+                        <div class="text-muted ms-3 mb-2"><i class="bi bi-arrow-down"></i></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Issuer</div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-award me-2 text-primary"></i>
+                    <div>
+                        <div class="fw-medium">{{ ca.name }}</div>
+                        <small class="text-muted">{{ ca.type }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

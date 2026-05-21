@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Habitbeat{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Welcome to Habitbeat</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Habits</h3>
+            <p class="stat-value" id="total-habits">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Check-ins Today</h3>
+            <p class="stat-value" id="checkins-today">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Best Streak</h3>
+            <p class="stat-value" id="best-streak">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Completion Rate</h3>
+            <p class="stat-value" id="completion-rate">-</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Habits List</h2>
+        <div id="habits-list" class="habits-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>Today's Check-ins</h2>
+        <div id="today-checkins" class="checkins-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>Streak Display</h2>
+        <div id="streak-display" class="streak-grid"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadDashboard() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+
+    try {
+        const [habitsRes, summaryRes] = await Promise.all([
+            fetch('/api/habits', { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch('/api/analytics/summary', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (summaryRes.ok) {
+            const summary = await summaryRes.json();
+            document.getElementById('total-habits').textContent = summary.total_habits || 0;
+            document.getElementById('checkins-today').textContent = summary.total_checkins_today || 0;
+            document.getElementById('best-streak').textContent = summary.best_streak || 0;
+            document.getElementById('completion-rate').textContent = ((summary.overall_completion_rate || 0) * 100).toFixed(0) + '%';
+        }
+
+        if (habitsRes.ok) {
+            const habits = await habitsRes.json();
+            renderHabitsList(habits);
+            renderTodayCheckins(habits);
+            renderStreakDisplay(habits);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+function renderHabitsList(habits) {
+    const container = document.getElementById('habits-list');
+    if (!habits.length) {
+        container.innerHTML = '<p class="empty-state">No habits yet. <a href="/habits">Create one</a></p>';
+        return;
+    }
+    container.innerHTML = habits.map(habit => `
+        <div class="habit-item">
+            <span class="habit-color" style="background-color: ${habit.color || '#6366f1'}"></span>
+            <span class="habit-name">${habit.name}</span>
+            <span class="habit-frequency">${habit.frequency}</span>
+        </div>
+    `).join('');
+}
+
+function renderTodayCheckins(habits) {
+    const container = document.getElementById('today-checkins');
+    const todayCheckins = habits.filter(h => h.completed_today);
+    if (!todayCheckins.length) {
+        container.innerHTML = '<p class="empty-state">No check-ins yet today</p>';
+        return;
+    }
+    container.innerHTML = todayCheckins.map(habit => `
+        <div class="checkin-item checkin-complete">
+            <span class="habit-color" style="background-color: ${habit.color || '#6366f1'}"></span>
+            <span class="habit-name">${habit.name}</span>
+            <span class="checkin-time">${habit.last_checkin || 'Completed'}</span>
+        </div>
+    `).join('');
+}
+
+function renderStreakDisplay(habits) {
+    const container = document.getElementById('streak-display');
+    if (!habits.length) {
+        container.innerHTML = '<p class="empty-state">No streaks to display</p>';
+        return;
+    }
+    container.innerHTML = habits.map(habit => `
+        <div class="streak-card">
+            <h4>${habit.name}</h4>
+            <p class="streak-count">${habit.current_streak || 0} days</p>
+            <p class="streak-label">Current Streak</p>
+        </div>
+    `).join('');
+}
+
+loadDashboard();
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Create CA - Local CA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{{ url_for('ca_list') }}" class="text-decoration-none">&larr; Back to CAs</a>
+        <h1 class="mb-0 mt-2">Create Certificate Authority</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">CA Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="my-root-ca">
+                            <small class="text-muted">Unique identifier (letters, numbers, underscore)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="commonName" class="form-label">Common Name *</label>
+                            <input type="text" class="form-control" id="commonName" name="common_name" required placeholder="My Root CA">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="type" class="form-label">CA Type *</label>
+                            <select class="form-select" id="type" name="type" onchange="toggleParentField()">
+                                <option value="root">Root CA</option>
+                                <option value="intermediate">Intermediate CA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="parentField" style="display: none;">
+                            <label for="parentId" class="form-label">Parent CA *</label>
+                            <select class="form-select" id="parentId" name="parent_id">
+                                <option value="">Select Parent CA</option>
+                                {% for ca in cas %}
+                                    <option value="{{ ca.id }}">{{ ca.name }} ({{ ca.type }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">Subject Details</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" placeholder="US">
+                            <small class="text-muted">2-letter country code</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">State/Province</label>
+                            <input type="text" class="form-control" id="state" name="state">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="locality" class="form-label">Locality</label>
+                            <input type="text" class="form-control" id="locality" name="locality">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="organization" class="form-label">Organization</label>
+                            <input type="text" class="form-control" id="organization" name="organization">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">Certificate Settings</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="validityYears" class="form-label">Validity (Years)</label>
+                            <input type="number" class="form-control" id="validityYears" name="validity_years" value="10" min="1" max="30">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="keySize" class="form-label">Key Size (Bits)</label>
+                            <select class="form-select" id="keySize" name="key_size">
+                                <option value="2048">2048</option>
+                                <option value="4096" selected>4096</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create CA
+                        </button>
+                        <a href="{{ url_for('ca_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleParentField() {
+    var type = document.getElementById('type').value;
+    var parentField = document.getElementById('parentField');
+    if (type === 'intermediate') {
+        parentField.style.display = 'block';
+    } else {
+        parentField.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

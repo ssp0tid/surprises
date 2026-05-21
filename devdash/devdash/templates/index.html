@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevDash - Local Developer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .service-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .status-running {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .log-output {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold">DevDash</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="system-stats" class="text-sm text-gray-400">
+                    <span id="service-count">0</span> services running
+                </span>
+                <button onclick="refreshServices()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h.01M15 10h.01M9.5 15.5a3.5 3.5 0 005 0"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-300 mb-2">No Dev Servers Found</h2>
+            <p class="text-gray-500">Start a Node.js, Python, or Go development server to see it here.</p>
+            <div class="mt-6 text-left max-w-md mx-auto bg-gray-800 rounded-lg p-4 text-sm">
+                <p class="text-gray-400 mb-2">Common ports:</p>
+                <div class="grid grid-cols-2 gap-2 text-gray-500">
+                    <span>3000 - Node.js</span>
+                    <span>5000 - Flask</span>
+                    <span>5173 - Vite</span>
+                    <span>8000 - Django</span>
+                    <span>8080 - Go/Java</span>
+                    <span>8888 - Jupyter</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Service cards will be rendered here -->
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        let services = [];
+        let updateInterval = null;
+
+        // Process type icons and colors
+        const typeConfig = {
+            node: { icon: '🟢', color: 'text-green-400', bg: 'bg-green-900/30 border-green-800' },
+            python: { icon: '🐍', color: 'text-yellow-400', bg: 'bg-yellow-900/30 border-yellow-800' },
+            go: { icon: '🔵', color: 'text-cyan-400', bg: 'bg-cyan-900/30 border-cyan-800' },
+            java: { icon: '☕', color: 'text-orange-400', bg: 'bg-orange-900/30 border-orange-800' },
+            ruby: { icon: '💎', color: 'text-red-400', bg: 'bg-red-900/30 border-red-800' },
+            php: { icon: '🐘', color: 'text-purple-400', bg: 'bg-purple-900/30 border-purple-800' },
+            unknown: { icon: '❓', color: 'text-gray-400', bg: 'bg-gray-800/30 border-gray-700' }
+        };
+
+        async function fetchServices() {
+            try {
+                const response = await fetch('/api/services');
+                const data = await response.json();
+                
+                if (data.success) {
+                    services = data.data;
+                    renderServices();
+                    updateSystemStats();
+                }
+            } catch (error) {
+                console.error('Failed to fetch services:', error);
+            }
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+            const empty = document.getElementById('empty-state');
+            
+            if (services.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            empty.classList.add('hidden');
+            
+            grid.innerHTML = services.map(service => {
+                const config = typeConfig[service.process_type] || typeConfig.unknown;
+                const isRunning = service.status === 'running';
+                
+                return `
+                    <div class="service-card bg-gray-800 rounded-xl border border-gray-700 overflow-hidden ${config.bg}" data-id="${service.id}">
+                        <div class="p-5">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">${config.icon}</span>
+                                    <div>
+                                        <h3 class="font-semibold">${escapeHtml(service.name)}</h3>
+                                        <p class="text-sm text-gray-400">:${service.port}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 status-running' : 'bg-red-500'}"></span>
+                                    <span class="text-xs font-medium ${isRunning ? 'text-green-400' : 'text-red-400'} uppercase">
+                                        ${service.status}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">CPU</p>
+                                    <p class="text-lg font-semibold ${config.color}">${service.cpu_percent}%</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">Memory</p>
+                                    <p class="text-lg font-semibold ${config.color}">${service.memory_mb}MB</p>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-gray-500 mb-4">
+                                <p>PID: ${service.pid}</p>
+                                <p class="truncate" title="${escapeHtml(service.command)}">${truncate(service.command, 40)}</p>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <a href="http://localhost:${service.port}" target="_blank" 
+                                   class="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-center text-sm font-medium transition">
+                                    Open
+                                </a>
+                                <button onclick="viewLogs('${service.id}')" 
+                                        class="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-sm font-medium transition">
+                                    Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function updateSystemStats() {
+            try {
+                const response = await fetch('/api/system');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('service-count').textContent = data.data.service_count;
+                }
+            } catch (error) {
+                console.error('Failed to fetch system stats:', error);
+            }
+        }
+
+        function refreshServices() {
+            fetchServices();
+        }
+
+        function viewLogs(serviceId) {
+            alert('Log viewing coming soon!');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncate(text, maxLength) {
+            if (!text) return '';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+
+        // Auto-refresh every 5 seconds
+        function startAutoRefresh() {
+            fetchServices();
+            updateInterval = setInterval(fetchServices, 5000);
+        }
+
+        // Initial load
+        startAutoRefresh();
+
+        // Refresh on tab visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                fetchServices();
+            }
+        });
+    </script>
+</body>
+</html>

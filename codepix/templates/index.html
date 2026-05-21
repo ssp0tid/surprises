@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CodePix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>CodePix</h1>
+      <form action="{{ url_for('export_png') }}" method="post" target="_blank" class="codepix-form">
+        <textarea name="code" placeholder="Paste code here..." spellcheck="false" rows="14"></textarea>
+        <div class="controls">
+          <label for="theme">Theme:</label>
+          <select name="theme" id="theme">
+            {% for t in themes %}
+              <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Export PNG</button>
+        </div>
+      </form>
+    </div>
+  </body>
+  </html>

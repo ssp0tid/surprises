@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Habit Detail - Habitbeat{% endblock %}
+
+{% block content %}
+<div class="habit-detail">
+    <a href="/habits" class="back-link">&larr; Back to Habits</a>
+
+    <div id="habit-info"></div>
+
+    <div class="section">
+        <h2>Check-in History</h2>
+        <div id="checkins-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>Progress Chart</h2>
+        <canvas id="progress-chart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const habitId = {{ habit_id }};
+
+async function loadHabitDetail() {
+    try {
+        const token = localStorage.getItem('token');
+
+        const [habitRes, streakRes, analyticsRes] = await Promise.all([
+            fetch(`/api/habits/${habitId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`/api/analytics/habits/${habitId}/streak`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`/api/analytics/habits/${habitId}/analytics?period=weekly`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (habitRes.ok) {
+            const habit = await habitRes.json();
+            document.getElementById('habit-info').innerHTML = `
+                <h1>${habit.name}</h1>
+                <p>${habit.description || ''}</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Current Streak</h3>
+                        <p>${habit.current_streak}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Longest Streak</h3>
+                        <p>${habit.longest_streak}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (analyticsRes.ok) {
+            const analytics = await analyticsRes.json();
+            renderChart(analytics.data);
+        }
+    } catch (error) {
+        console.error('Error loading habit detail:', error);
+    }
+}
+
+function renderChart(data) {
+    const canvas = document.getElementById('progress-chart');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = 600;
+    const height = canvas.height = 200;
+    const barWidth = width / data.length;
+
+    ctx.fillStyle = '#6366f1';
+    data.forEach((item, i) => {
+        const barHeight = (item.completed / item.target) * height;
+        ctx.fillRect(i * barWidth + 2, height - barHeight, barWidth - 4, barHeight);
+    });
+}
+
+loadHabitDetail();
+</script>
+{% endblock %}

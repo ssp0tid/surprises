@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trafix Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Trafix Dashboard</h1>
+            <div class="header-actions">
+                <button id="refreshBtn" class="btn">Refresh</button>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Requests</div>
+                <div class="stat-value" id="totalRequests">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Requests/sec</div>
+                <div class="stat-value" id="requestsPerSec">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Response Time</div>
+                <div class="stat-value" id="avgResponse">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Error Rate</div>
+                <div class="stat-value" id="errorRate">-</div>
+            </div>
+        </div>
+
+        <section class="requests-section">
+            <h2>Recent Requests</h2>
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Search by path...">
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="2xx">2xx Success</option>
+                    <option value="3xx">3xx Redirect</option>
+                    <option value="4xx">4xx Client Error</option>
+                    <option value="5xx">5xx Server Error</option>
+                </select>
+            </div>
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Method</th>
+                        <th>Path</th>
+                        <th>Target</th>
+                        <th>Status</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsList">
+                    <tr>
+                        <td colspan="6" class="loading">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="analytics-section">
+            <h2>Analytics</h2>
+            <div class="chart-container">
+                <canvas id="requestsChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{% block page_title %}{% endblock %} - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                Dashboard
+            </a>
+            <a href="{{ url_for('admin.components') }}" class="{% if request.endpoint and 'components' in request.endpoint %}active{% endif %}">
+                Components
+            </a>
+            <a href="{{ url_for('admin.groups') }}" class="{% if request.endpoint and 'groups' in request.endpoint %}active{% endif %}">
+                Groups
+            </a>
+            <a href="{{ url_for('admin.incidents') }}" class="{% if request.endpoint and 'incidents' in request.endpoint %}active{% endif %}">
+                Incidents
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="{% if request.endpoint == 'admin.settings' %}active{% endif %}">
+                Settings
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-content">
+        {% block admin_content %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

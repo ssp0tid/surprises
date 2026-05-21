@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.name }} - Status{% endblock %}
+
+{% block head %}
+<style>
+    :root {
+        --primary-color: {{ branding.get('primary_color', '#2563eb') }};
+    }
+    {% if branding.get('custom_css') %}
+    {{ branding.custom_css | safe }}
+    {% endif %}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="status-page">
+    <header class="status-header">
+        <div class="container">
+            {% if organization.custom_branding.get('logo') %}
+            <img src="{{ organization.custom_branding.logo }}" alt="{{ organization.name }}" class="org-logo">
+            {% endif %}
+            <h1>{{ organization.name }}</h1>
+            <div class="overall-status status-{{ overall_status }}">
+                <span class="status-indicator"></span>
+                <span class="status-text">{{ overall_status | upper }}</span>
+            </div>
+            <p class="last-updated">Last updated: {{ last_updated | relative_time }}</p>
+        </div>
+    </header>
+
+    {% if active_incidents %}
+    <section class="active-incidents">
+        <div class="container">
+            <h2>Active Incidents</h2>
+            {% for incident in active_incidents %}
+            <div class="incident-alert incident-{{ incident.severity }}">
+                <h3>{{ incident.title }}</h3>
+                <p>{{ incident.description }}</p>
+                <div class="incident-status">
+                    <span class="badge badge-{{ incident.severity }}">{{ incident.severity }}</span>
+                    <span class="badge badge-{{ incident.status }}">{{ incident.status }}</span>
+                </div>
+                <div class="incident-timeline">
+                    {% for update in incident.timeline.limit(5) %}
+                    <div class="timeline-entry">
+                        <time>{{ update.created_at | datetime }}</time>
+                        <span class="status">{{ update.status }}</span>
+                        <p>{{ update.message }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="components-section">
+        <div class="container">
+            <h2>System Status</h2>
+
+            {% if groups %}
+                {% for group in groups %}
+                <div class="component-group">
+                    <h3 class="group-name">{{ group.name }}</h3>
+                    {% if group.description %}
+                    <p class="group-description">{{ group.description }}</p>
+                    {% endif %}
+                    <div class="components-list">
+                        {% for component in group.components.filter_by(is_enabled=True).order_by(Component.display_order).all() %}
+                        <div class="component-item">
+                            <div class="component-info">
+                                <span class="component-name">{{ component.name }}</span>
+                                {% if component.description %}
+                                <span class="component-description">{{ component.description }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="component-status">
+                                <span class="status-badge {{ component.get_status() }}">{{ component.get_status() }}</span>
+                                <span class="uptime">{{ "%.2f"|format(component.get_uptime(30)) }}% uptime</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {# Ungrouped components #}
+            {% set ungrouped = components.filter_by(group_id=None, is_enabled=True).all() %}
+            {% if ungrouped %}
+            <div class="component-group">
+                <h3 class="group-name">Other Services</h3>
+                <div class="components-list">
+                    {% for component in ungrouped %}
+                    <div class="component-item">
+                        <div class="component-info">
+                            <span class="component-name">{{ component.name }}</span>
+                            {% if component.description %}
+                            <span class="component-description">{{ component.description }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="component-status">
+                            <span class="status-badge {{ component.get_status() }}">{{ component.get_status() }}</span>
+                            <span class="uptime">{{ "%.2f"|format(component.get_uptime(30)) }}% uptime</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if recent_incidents %}
+    <section class="past-incidents">
+        <div class="container">
+            <h2>Recent Incidents</h2>
+            <div class="incidents-list">
+                {% for incident in recent_incidents %}
+                <div class="incident-item">
+                    <div class="incident-header">
+                        <h3>
+                            <a href="{{ url_for('status.incident', org_slug=organization.slug, incident_id=incident.id) }}">
+                                {{ incident.title }}
+                            </a>
+                        </h3>
+                        <span class="badge badge-{{ incident.severity }}">{{ incident.severity }}</span>
+                    </div>
+                    <div class="incident-meta">
+                        <time>{{ incident.created_at | datetime }}</time>
+                        <span class="status">{{ incident.status }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

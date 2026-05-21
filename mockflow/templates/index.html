@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MockFlow - HTTP Mock Designer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">MockFlow</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <span class="icon">◉</span> Dashboard
+                </button>
+                <button class="nav-item" data-view="endpoints">
+                    <span class="icon">◎</span> Endpoints
+                </button>
+                <button class="nav-item" data-view="logs">
+                    <span class="icon">▤</span> Logs
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="server-status" id="serverStatus">
+                    <span class="status-dot offline"></span>
+                    <span class="status-text">Server Offline</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <select id="projectSelect" class="project-select">
+                        <option value="">Select Project</option>
+                    </select>
+                    <button class="btn btn-primary" id="newProjectBtn">+ New Project</button>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary" id="serverToggleBtn">Start Server</button>
+                </div>
+            </header>
+
+            <div class="content-area" id="contentArea">
+                <div class="view hidden" id="dashboardView">
+                    <div class="dashboard-header">
+                        <h2>Dashboard</h2>
+                    </div>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="endpointCount">0</div>
+                            <div class="stat-label">Endpoints</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="requestCount">0</div>
+                            <div class="stat-label">Requests</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="matchRate">0%</div>
+                            <div class="stat-label">Match Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view hidden" id="endpointsView">
+                    <div class="endpoints-header">
+                        <h2>Endpoints</h2>
+                        <button class="btn btn-primary" id="newEndpointBtn">+ Add Endpoint</button>
+                    </div>
+                    <div class="endpoint-filters">
+                        <select id="methodFilter" class="filter-select">
+                            <option value="">All Methods</option>
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search endpoints...">
+                    </div>
+                    <div class="endpoints-list" id="endpointsList"></div>
+                </div>
+
+                <div class="view hidden" id="logsView">
+                    <div class="logs-header">
+                        <h2>Request Logs</h2>
+                        <div class="logs-filters">
+                            <select id="logMethodFilter" class="filter-select">
+                                <option value="">All Methods</option>
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                            </select>
+                            <button class="btn btn-secondary" id="clearLogsBtn">Clear Logs</button>
+                        </div>
+                    </div>
+                    <div class="logs-table-container">
+                        <table class="logs-table" id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Method</th>
+                                    <th>Path</th>
+                                    <th>Status</th>
+                                    <th>Response Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal hidden" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Modal</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+                <button class="btn btn-primary" id="modalSave">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

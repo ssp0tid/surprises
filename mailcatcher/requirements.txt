@@ -1,0 +1,10 @@
+# Core dependencies for mailcatcher
+# Compatible with Python 3.10+
+
+Flask>=3.0.0,<4.0.0
+aiosmtpd>=1.4.0,<2.0.0
+bleach>=6.0.0,<7.0.0
+SQLAlchemy>=2.0.0,<3.0.0
+
+# Date parsing for email headers
+python-dateutil>=2.7.0

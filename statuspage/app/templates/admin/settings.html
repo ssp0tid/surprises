@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block admin_content %}
+<h1>Organization Settings</h1>
+
+<form method="POST" class="form">
+    {{ form.hidden_tag() }}
+
+    <div class="form-section">
+        <h2>General</h2>
+        <div class="form-group">
+            {{ form.organization_name.label(class="form-label") }}
+            {{ form.organization_name(class="form-control") }}
+            {% if form.organization_name.errors %}
+            <div class="form-errors">
+                {% for error in form.organization_name.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2>Branding</h2>
+        <div class="form-group">
+            {{ form.primary_color.label(class="form-label") }}
+            {{ form.primary_color(class="form-control") }}
+            <input type="color" class="color-preview" value="{{ form.primary_color.data or '#2563eb' }}">
+        </div>
+
+        <div class="form-group">
+            {{ form.custom_css.label(class="form-label") }}
+            {{ form.custom_css(class="form-control", rows=10) }}
+            <small class="form-help">Custom CSS to apply to the public status page</small>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </div>
+</form>
+
+<div class="settings-links">
+    <h2>Quick Links</h2>
+    <ul>
+        <li>
+            <a href="{{ url_for('status.public_page', org_slug=current_user.organization.slug) }}" target="_blank">
+                View Public Status Page
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('api.status', org_slug=current_user.organization.slug) }}">
+                API Status Endpoint
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

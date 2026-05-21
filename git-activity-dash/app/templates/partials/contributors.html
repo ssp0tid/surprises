@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Contributors</h5>
+    </div>
+    <div class="card-body">
+        <div id="contributorsLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="contributorsContent" style="display: none;">
+            <canvas id="contributorsChart" width="400" height="200"></canvas>
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Commits</th>
+                        <th>First Commit</th>
+                        <th>Last Commit</th>
+                    </tr>
+                </thead>
+                <tbody id="contributorsTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="contributorsError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

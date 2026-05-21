@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Git Activity Dashboard - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Repository Selection</h4>
+            </div>
+            <div class="card-body">
+                <form id="repoForm" method="GET" action="{{ url_for('main.dashboard', repo_path='') }}">
+                    <div class="mb-3">
+                        <label for="repoPath" class="form-label">Repository Path</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="repoPath" name="repo_path" placeholder="{{ default_path }}" value="{{ default_path }}" required>
+                            <button type="submit" class="btn btn-primary">Analyze</button>
+                        </div>
+                        <div class="form-text">Enter the absolute path to a local git repository</div>
+                    </div>
+                </form>
+
+                <hr>
+
+                <h5>Recent Repositories</h5>
+                <div id="recentRepos" class="list-group">
+                    <p class="text-muted">No recent repositories</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Start</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Enter the path to a local git repository</li>
+                    <li>Click "Analyze" to view the dashboard</li>
+                    <li>Explore commits, contributors, and activity</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script>
+const repoInput = document.getElementById('repoPath');
+const repoForm = document.getElementById('repoForm');
+
+repoForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const path = repoInput.value.trim();
+    if (path) {
+        window.location.href = '/dashboard/' + encodeURIComponent(path);
+    }
+});
+
+loadRecentRepos();
+</script>
+{% endblock %}

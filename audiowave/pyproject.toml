@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audiowave"
+version = "0.1.0"
+description = "CLI tool for audio waveform visualization and frequency spectrum analysis"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "AudioWave Team", email = "team@audiowave.dev"}
+]
+keywords = ["audio", "visualization", "waveform", "spectrum", "cli", "beat-detection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+]
+
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.4.0",
+    "soundfile>=0.11.0",
+    "click>=8.0.0",
+    "tqdm>=4.62.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+    "isort>=5.10.0",
+]
+
+[project.scripts]
+audiowave = "audiowave.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/audiowave/audiowave"
+Documentation = "https://audiowave.readthedocs.io"
+Repository = "https://github.com/audiowave/audiowave"
+Issues = "https://github.com/audiowave/audiowave/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["audiowave*"]
+
+[tool.setuptools.package-data]
+audiowave = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

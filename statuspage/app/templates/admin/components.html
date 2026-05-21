@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Components{% endblock %}
+
+{% block admin_content %}
+<div class="page-header">
+    <h1>Components</h1>
+    <a href="{{ url_for('admin.new_component') }}" class="btn btn-primary">Add Component</a>
+</div>
+
+{% if components %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Group</th>
+            <th>Type</th>
+            <th>Check URL</th>
+            <th>Status</th>
+            <th>Uptime (30d)</th>
+            <th>Enabled</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for component in components %}
+        <tr>
+            <td>
+                <strong>{{ component.name }}</strong>
+                {% if component.description %}
+                <br><small class="text-muted">{{ component.description }}</small>
+                {% endif %}
+            </td>
+            <td>{{ component.group.name if component.group else '-' }}</td>
+            <td>{{ component.check_type }}</td>
+            <td><code>{{ component.check_url }}</code></td>
+            <td><span class="status-badge {{ component.get_status() }}">{{ component.get_status() }}</span></td>
+            <td>{{ "%.2f"|format(component.get_uptime(30)) }}%</td>
+            <td>
+                <form method="POST" action="{{ url_for('admin.toggle_component', id=component.id) }}" class="inline-form">
+                    <input type="checkbox" {% if component.is_enabled %}checked{% endif %} onchange="this.form.submit()">
+                </form>
+            </td>
+            <td>
+                <a href="{{ url_for('admin.edit_component', id=component.id) }}" class="btn btn-small">Edit</a>
+                <a href="{{ url_for('admin.component_history', id=component.id) }}" class="btn btn-small">History</a>
+                <form method="POST" action="{{ url_for('admin.delete_component', id=component.id) }}" class="inline-form" onsubmit="return confirm('Delete this component?')">
+                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+    <p>No components yet.</p>
+    <a href="{{ url_for('admin.new_component') }}" class="btn btn-primary">Add your first component</a>
+</div>
+{% endif %}
+{% endblock %}

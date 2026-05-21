@@ -1,0 +1,56 @@
+# DNSWarden Configuration
+
+server:
+  bind_address: "0.0.0.0"
+  port: 53
+
+# Upstream DNS servers
+upstream:
+  - host: "1.1.1.1"
+    port: 53
+  - host: "1.0.0.1"
+    port: 53
+  - host: "8.8.8.8"
+    port: 53
+
+# DNS-over-HTTPS (optional)
+doh:
+  enabled: true
+  url: "https://cloudflare-dns.com/dns-query"
+
+# Blocklists
+blocklists:
+  enabled: true
+  sources:
+    - url: "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+    - url: "https://adaway.org/hosts.txt"
+  reload_interval: 86400  # 24 hours in seconds
+
+# Local zones (loaded from zones/local.zone)
+zones:
+  enabled: true
+
+# Logging
+logging:
+  enabled: true
+  backend: "sqlite"  # sqlite, file, syslog
+  path: "/var/lib/dnswarden/logs.db"
+  level: "info"  # debug, info, warning, error
+  log_queries: true
+  log_responses: true
+
+# Security
+security:
+  rate_limit:
+    enabled: true
+    queries_per_second: 100
+    burst: 200
+  allowlist:
+    enabled: false
+    file: "/etc/dnswarden/allowlist.txt"
+
+# Admin API
+admin:
+  enabled: true
+  bind_address: "127.0.0.1"
+  port: 8080

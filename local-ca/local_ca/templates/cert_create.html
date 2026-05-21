@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Create Certificate - Local CA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{{ url_for('cert_list') }}" class="text-decoration-none">&larr; Back to Certificates</a>
+        <h1 class="mb-0 mt-2">Create TLS Certificate</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Certificate Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="my-server">
+                            <small class="text-muted">Unique identifier</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="commonName" class="form-label">Common Name *</label>
+                            <input type="text" class="form-control" id="commonName" name="common_name" required placeholder="localhost">
+                            <small class="text-muted">Typically hostname</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="caId" class="form-label">Signing CA *</label>
+                            <select class="form-select" id="caId" name="ca_id" required>
+                                <option value="">Select CA</option>
+                                {% for ca in cas %}
+                                    <option value="{{ ca.id }}">{{ ca.name }} ({{ ca.type }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="san" class="form-label">Subject Alternative Names</label>
+                            <input type="text" class="form-control" id="san" name="san" placeholder="example.com, 127.0.0.1">
+                            <small class="text-muted">Comma-separated</small>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">Subject Details (Optional)</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" placeholder="US">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">State/Province</label>
+                            <input type="text" class="form-control" id="state" name="state">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="locality" class="form-label">Locality</label>
+                            <input type="text" class="form-control" id="locality" name="locality">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="organization" class="form-label">Organization</label>
+                            <input type="text" class="form-control" id="organization" name="organization">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">Certificate Settings</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="validityYears" class="form-label">Validity (Years)</label>
+                            <input type="number" class="form-control" id="validityYears" name="validity_years" value="1" min="1" max="10">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="keySize" class="form-label">Key Size (Bits)</label>
+                            <select class="form-select" id="keySize" name="key_size">
+                                <option value="1024">1024</option>
+                                <option value="2048" selected>2048</option>
+                                <option value="4096">4096</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create Certificate
+                        </button>
+                        <a href="{{ url_for('cert_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Activity Heatmap</h5>
+    </div>
+    <div class="card-body">
+        <div id="activityLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="activityContent" style="display: none;">
+            <div class="row">
+                <div class="col-md-8">
+                    <canvas id="heatmapCanvas" width="700" height="200"></canvas>
+                </div>
+                <div class="col-md-4">
+                    <div id="heatmapLegend">
+                        <h6>Legend</h6>
+                        <div class="heatmap-scale">
+                            <span>Less</span>
+                            <div class="heatmap-cell" style="background: #ebedf0;"></div>
+                            <div class="heatmap-cell" style="background: #9be9a8;"></div>
+                            <div class="heatmap-cell" style="background: #40c463;"></div>
+                            <div class="heatmap-cell" style="background: #30a14e;"></div>
+                            <div class="heatmap-cell" style="background: #216e39;"></div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="activityError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

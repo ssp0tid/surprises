@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ email.subject or '(No Subject)' }} - MailCatcher{% endblock %}
+
+{% block content %}
+<div class="email-detail">
+    <div class="detail-header">
+        <a href="{{ url_for('index') }}" class="back-link">&larr; Back to Emails</a>
+        <a href="{{ url_for('download_email', email_id=email.id) }}" class="btn btn-primary">Download .eml</a>
+    </div>
+
+    <div class="email-meta">
+        <div class="meta-row">
+            <span class="meta-label">Subject:</span>
+            <span class="meta-value">{{ email.subject or '(No Subject)' }}</span>
+        </div>
+        <div class="meta-row">
+            <span class="meta-label">From:</span>
+            <span class="meta-value">{{ email.sender }}</span>
+        </div>
+        <div class="meta-row">
+            <span class="meta-label">To:</span>
+            <span class="meta-value">{{ email.recipients }}</span>
+        </div>
+        <div class="meta-row">
+            <span class="meta-label">Date:</span>
+            <span class="meta-value">{{ email.date or email.received_at }}</span>
+        </div>
+        {% if email.message_id %}
+        <div class="meta-row">
+            <span class="meta-label">Message-ID:</span>
+            <span class="meta-value meta-value-small">{{ email.message_id }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if headers %}
+    <details class="headers-section">
+        <summary>Headers</summary>
+        <div class="headers-list">
+            {% for key, value in headers.items() %}
+            <div class="header-row">
+                <span class="header-key">{{ key }}:</span>
+                <span class="header-value">{{ value }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </details>
+    {% endif %}
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="plain">Plain Text</button>
+        <button class="tab-btn" data-tab="html">HTML</button>
+    </div>
+
+    <div class="tab-content">
+        <div id="tab-plain" class="tab-pane active">
+            {% if email.text_body %}
+            <pre class="plain-text">{{ email.text_body }}</pre>
+            {% else %}
+            <p class="no-content">No plain text content available.</p>
+            {% endif %}
+        </div>
+
+        <div id="tab-html" class="tab-pane">
+            {% if sanitized_html %}
+            <iframe class="html-preview" srcdoc="{{ sanitized_html }}"></iframe>
+            {% else %}
+            <p class="no-content">No HTML content available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <form method="post" action="{{ url_for('delete_email', email_id=email.id) }}">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this email?')">Delete Email</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+</script>
+{% endblock %}

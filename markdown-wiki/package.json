@@ -1,0 +1,23 @@
+{
+  "name": "markdown-wiki",
+  "version": "1.0.0",
+  "description": "Markdown Wiki with Vite + Preact",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "fastify": "^5.8.5",
+    "@preact/signals": "^1.2.3",
+    "preact": "^10.25.4",
+    "marked": "^15.0.6"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.3",
+    "vite": "^6.0.11"
+  }
+}

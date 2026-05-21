@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}{% if component %}Edit{% else %}New{% endif %} Component{% endblock %}
+
+{% block admin_content %}
+<h1>{% if component %}Edit{% else %}New{% endif %} Component</h1>
+
+<form method="POST" class="form">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+        {% if form.name.errors %}
+        <div class="form-errors">
+            {% for error in form.name.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.group_id.label(class="form-label") }}
+        {{ form.group_id(class="form-control") }}
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            {{ form.check_type.label(class="form-label") }}
+            {{ form.check_type(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.check_url.label(class="form-label") }}
+            {{ form.check_url(class="form-control") }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            {{ form.check_method.label(class="form-label") }}
+            {{ form.check_method(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.check_expected_status.label(class="form-label") }}
+            {{ form.check_expected_status(class="form-control") }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            {{ form.check_timeout.label(class="form-label") }}
+            {{ form.check_timeout(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.check_interval.label(class="form-label") }}
+            {{ form.check_interval(class="form-control") }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.check_headers.label(class="form-label") }}
+        {{ form.check_headers(class="form-control") }}
+        <small class="form-help">JSON format: {"Authorization": "Bearer token"}</small>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            {{ form.display_order.label(class="form-label") }}
+            {{ form.display_order(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.is_enabled.label(class="form-label") }}
+            {{ form.is_enabled() }}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Component</button>
+        <a href="{{ url_for('admin.components') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,40 @@
+devdash:
+  host: "127.0.0.1"
+  port: 7890
+  debug: false
+
+discovery:
+  scan_interval: 5  # seconds
+  ports:
+    - 3000    # Node.js common
+    - 3001    # Node.js alternative
+    - 4200    # Angular
+    - 5000    # Flask default
+    - 5001    # Flask alternative
+    - 5173    # Vite
+    - 5500    # Live Server
+    - 8000    # Django/FastAPI
+    - 8080    # Java/Go common
+    - 8888    # Jupyter
+    - 9000    # PHP
+  excluded_pids: []  # PIDs to ignore
+  process_blacklist:  # Process names to ignore
+    - chrome
+    - firefox
+    - slack
+    - vscode
+    - code
+    - electron
+
+monitoring:
+  update_interval: 2  # seconds
+  history_length: 60  # number of data points to keep
+
+logs:
+  max_lines: 1000
+  auto_detect_logfiles: true
+  log_directory: "logs"
+
+actions:
+  confirm_before_kill: true
+  allow_restart: true

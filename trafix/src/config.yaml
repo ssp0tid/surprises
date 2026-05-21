@@ -1,0 +1,36 @@
+server:
+  host: "127.0.0.1"
+  port: 8080
+
+dashboard:
+  host: "127.0.0.1"
+  port: 8081
+  username: "admin"
+  password: "changeme"
+
+proxy:
+  host: "127.0.0.1"
+  port: 8082
+  target_base_url: "http://localhost:3000"
+  timeout: 30s
+
+storage:
+  database: "./trafix.db"
+  max_connections: 10
+
+middleware:
+  rate_limit:
+    enabled: true
+    requests_per_second: 100
+    burst: 20
+  auth:
+    enabled: false
+    api_keys:
+      - "sk-test-12345"
+  logging:
+    enabled: true
+    max_body_size: 10240
+  cors:
+    enabled: false
+    allowed_origins:
+      - "http://localhost:3000"

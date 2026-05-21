@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Email List - MailCatcher{% endblock %}
+
+{% block content %}
+<div class="email-list">
+    <div class="list-header">
+        <h2>Emails</h2>
+        <form method="post" action="{{ url_for('clear_all_emails') }}" class="clear-form">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all emails?')">Clear All</button>
+        </form>
+    </div>
+
+    <form method="post" action="{{ url_for('bulk_delete') }}">
+        <div class="filters">
+            <div class="filter-row">
+                <input type="text" name="subject" placeholder="Search subject..." value="{{ filters.subject }}" class="filter-input">
+                <input type="text" name="sender" placeholder="Search sender..." value="{{ filters.sender }}" class="filter-input">
+                <input type="date" name="date_from" value="{{ filters.date_from }}" class="filter-input" placeholder="From date">
+                <input type="date" name="date_to" value="{{ filters.date_to }}" class="filter-input" placeholder="To date">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+                {% if filters.subject or filters.sender or filters.date_from or filters.date_to %}
+                    <a href="{{ url_for('index') }}" class="btn btn-text">Clear</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if emails %}
+        <div class="table-container">
+            <table class="email-table">
+                <thead>
+                    <tr>
+                        <th class="col-checkbox">
+                            <input type="checkbox" id="select-all" onclick="document.querySelectorAll('.email-checkbox').forEach(cb => cb.checked = this.checked)">
+                        </th>
+                        <th class="col-subject">Subject</th>
+                        <th class="col-from">From</th>
+                        <th class="col-date">Date</th>
+                        <th class="col-attachments">Attachments</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for email in emails %}
+                    <tr>
+                        <td class="col-checkbox">
+                            <input type="checkbox" name="email_ids" value="{{ email.id }}" class="email-checkbox">
+                        </td>
+                        <td class="col-subject">
+                            <a href="{{ url_for('email_detail', email_id=email.id) }}">{{ email.subject or '(No Subject)' }}</a>
+                        </td>
+                        <td class="col-from">{{ email.sender }}</td>
+                        <td class="col-date">{{ email.received_at[:19] if email.received_at else '-' }}</td>
+                        <td class="col-attachments">
+                            {% if email.has_attachments %}
+                            <span class="attachment-indicator" title="Has attachments">&#128206;</span>
+                            {% endif %}
+                        </td>
+                        <td class="col-actions">
+                            <form method="post" action="{{ url_for('delete_email', email_id=email.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-icon btn-delete" onclick="return confirm('Delete this email?')" title="Delete">&#128465;</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bulk-actions">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete selected emails?')">Delete Selected</button>
+            <span class="selected-count"></span>
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if page > 1 %}
+            <a href="{{ url_for('index', page=page-1, per_page=per_page, subject=filters.subject, sender=filters.sender, date_from=filters.date_from, date_to=filters.date_to) }}" class="btn btn-secondary">&laquo; Previous</a>
+            {% endif %}
+
+            <span class="pagination-info">Page {{ page }} of {{ total_pages }} ({{ total }} emails)</span>
+
+            {% if page < total_pages %}
+            <a href="{{ url_for('index', page=page+1, per_page=per_page, subject=filters.subject, sender=filters.sender, date_from=filters.date_from, date_to=filters.date_to) }}" class="btn btn-secondary">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <p>No emails found.</p>
+            {% if filters.subject or filters.sender or filters.date_from or filters.date_to %}
+                <p>Try adjusting your filters or <a href="{{ url_for('index') }}">clear filters</a>.</p>
+            {% else %}
+                <p>Send some emails to port 1025 to see them here.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServiceMap - Network Service Discovery</title>
+    <script src="https://cdn.jsdelivr.net/npm/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .header {
+            background: #16213e;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            color: #00d9ff;
+        }
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+        }
+        .status-dot.active {
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 300px;
+            background: #16213e;
+            padding: 1rem;
+            overflow-y: auto;
+            border-right: 1px solid #0f3460;
+        }
+        .controls {
+            margin-bottom: 1rem;
+        }
+        .controls button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f3460;
+            color: #00d9ff;
+            border: 1px solid #00d9ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .controls button:hover {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        .controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .controls input {
+            width: 100%;
+            padding: 0.5rem;
+            background: #0f3460;
+            color: #e0e0e0;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .controls label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .services-list {
+            list-style: none;
+        }
+        .services-list li {
+            padding: 0.75rem;
+            background: #0f3460;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .services-list li:hover {
+            background: #1a4a7a;
+        }
+        .services-list .service-name {
+            font-weight: bold;
+            color: #00d9ff;
+        }
+        .services-list .service-host {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .services-list .service-type {
+            font-size: 0.7rem;
+            color: #666;
+            background: #1a1a2e;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+        .main {
+            flex: 1;
+            position: relative;
+        }
+        #network-graph {
+            width: 100%;
+            height: 100%;
+        }
+        .legend {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(22, 33, 62, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .info-panel {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(22, 33, 62, 0.95);
+            padding: 1rem;
+            border-radius: 8px;
+            min-width: 250px;
+        }
+        .info-panel h3 {
+            color: #00d9ff;
+            margin-bottom: 0.5rem;
+        }
+        .info-panel .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .info-panel .info-label {
+            color: #888;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .empty-state h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 ServiceMap</h1>
+        <div class="status">
+            <span id="status-text">Ready</span>
+            <div class="status-dot" id="status-dot"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="controls">
+                <button id="scan-btn" onclick="startScan()">Start Scan</button>
+                <label>Host (optional):</label>
+                <input type="text" id="host-input" placeholder="e.g., 192.168.1.1">
+                <label>Timeout (seconds):</label>
+                <input type="number" id="timeout-input" value="5" min="1" max="30">
+                <label>Port Range:</label>
+                <input type="text" id="port-range" placeholder="1-1024" value="1-1024">
+            </div>
+            <h3>Discovered Services</h3>
+            <ul class="services-list" id="services-list">
+                <li class="empty-state">
+                    <h2>No services yet</h2>
+                    <p>Click "Start Scan" to discover services on your network</p>
+                </li>
+            </ul>
+        </div>
+        <div class="main">
+            <div id="network-graph"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00d9ff;"></div>
+                    <span>This Device</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00ff88;"></div>
+                    <span>mDNS Service</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff6b6b;"></div>
+                    <span>Discovered Port</span>
+                </div>
+            </div>
+            <div class="info-panel" id="info-panel" style="display: none;">
+                <h3>Service Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span id="info-name"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Host:</span>
+                    <span id="info-host"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Port:</span>
+                    <span id="info-port"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Protocol:</span>
+                    <span id="info-protocol"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let network = null;
+        let nodes = [];
+        let edges = [];
+        let services = [];
+
+        // Get local device info
+        async function getLocalIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch {
+                return '127.0.0.1';
+            }
+        }
+
+        async function startScan() {
+            const scanBtn = document.getElementById('scan-btn');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            scanBtn.disabled = true;
+            statusDot.classList.add('active');
+            statusText.textContent = 'Scanning...';
+            
+            const timeout = parseInt(document.getElementById('timeout-input').value);
+            const portRange = document.getElementById('port-range').value.split('-').map(Number);
+            
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timeout, port_range: portRange })
+                });
+                
+                const data = await response.json();
+                services = data.services || [];
+                
+                updateServicesList(services);
+                updateGraph();
+                
+                statusText.textContent = `Found ${services.length} services`;
+            } catch (error) {
+                console.error('Scan error:', error);
+                statusText.textContent = 'Scan failed';
+            }
+            
+            scanBtn.disabled = false;
+            statusDot.classList.remove('active');
+        }
+
+        function updateServicesList(services) {
+            const list = document.getElementById('services-list');
+            
+            if (services.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <h2>No services found</h2>
+                        <p>Try extending the port range or check your network</p>
+                    </li>
+                `;
+                return;
+            }
+            
+            list.innerHTML = services.map((service, index) => `
+                <li onclick="focusNode(${index})">
+                    <div class="service-name">${service.name || 'Unknown'}</div>
+                    <div class="service-host">${service.host || 'N/A'}</div>
+                    ${service.port ? `<span class="service-type">:${service.port}</span>` : ''}
+                </li>
+            `).join('');
+        }
+
+        async function updateGraph() {
+            const localIP = await getLocalIP();
+            
+            // Create nodes
+            nodes = [
+                { id: 0, label: 'This Device\n' + localIP, color: '#00d9ff', size: 30, shape: 'circle' }
+            ];
+            
+            services.forEach((service, index) => {
+                const serviceIP = service.host || `host-${index}`;
+                const isMDNS = service.type === 'mDNS' || service.type === 'mdns';
+                
+                nodes.push({
+                    id: index + 1,
+                    label: `${service.name}\n${serviceIP}${service.port ? ':' + service.port : ''}`,
+                    color: isMDNS ? '#00ff88' : '#ff6b6b',
+                    size: 20,
+                    shape: 'dot'
+                });
+            });
+            
+            // Create edges
+            edges = services.map((service, index) => ({
+                from: 0,
+                to: index + 1,
+                color: { color: '#333' }
+            }));
+            
+            // Initialize network
+            const container = document.getElementById('network-graph');
+            const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+            
+            const options = {
+                nodes: {
+                    font: { color: '#e0e0e0', size: 12 },
+                    borderWidth: 2,
+                    shadow: true
+                },
+                edges: {
+                    width: 1,
+                    smooth: { type: 'continuous' }
+                },
+                physics: {
+                    stabilization: { iterations: 100 },
+                    barnesHut: {
+                        gravitationalConstant: -2000,
+                        springConstant: 0.04
+                    }
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 200
+                }
+            };
+            
+            network = new vis.Network(container, data, options);
+            
+            network.on('click', function(params) {
+                if (params.nodes.length > 0) {
+                    showServiceInfo(params.nodes[0]);
+                } else {
+                    document.getElementById('info-panel').style.display = 'none';
+                }
+            });
+        }
+
+        function focusNode(index) {
+            if (network) {
+                network.selectNodes([index + 1]);
+                showServiceInfo(index + 1);
+            }
+        }
+
+        function showServiceInfo(nodeId) {
+            const service = services[nodeId - 1];
+            if (!service) return;
+            
+            const panel = document.getElementById('info-panel');
+            panel.style.display = 'block';
+            
+            document.getElementById('info-name').textContent = service.name || 'Unknown';
+            document.getElementById('info-host').textContent = service.host || 'N/A';
+            document.getElementById('info-port').textContent = service.port || 'N/A';
+            document.getElementById('info-protocol').textContent = service.protocol || 'tcp';
+        }
+
+        // Initialize with local network scan
+        window.addEventListener('load', async () => {
+            await updateGraph();
+        });
+    </script>
+</body>
+</html>

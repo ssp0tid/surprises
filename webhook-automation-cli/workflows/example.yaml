@@ -1,0 +1,34 @@
+name: "HTTP Bin Example"
+description: "A simple workflow demonstrating HTTP requests with httpbin.org"
+version: "1.0"
+
+settings:
+  timeout: 30000
+
+steps:
+  - id: get-request
+    name: "GET Request"
+    type: http
+    request:
+      url: "https://httpbin.org/get"
+      method: GET
+
+  - id: check-status
+    name: "Check Status"
+    type: condition
+    condition: "{{get-request.status}} == 200"
+    onTrue: "continue"
+    onFalse: "stop"
+
+  - id: extract-data
+    name: "Extract Data"
+    type: set
+    vars:
+      origin: "{{get-request.body.origin}}"
+      url: "{{get-request.body.url}}"
+
+  - id: log-result
+    name: "Log Result"
+    type: log
+    message: "Request completed. Origin: {{vars.origin}}, URL: {{vars.url}}"
+    level: info

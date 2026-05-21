@@ -1,0 +1,34 @@
+.chart-container {
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+}
+
+canvas {
+    width: 100%;
+    height: 200px;
+}
+
+.chart-bar {
+    fill: var(--primary);
+}
+
+.chart-bar.completed {
+    fill: var(--success);
+}
+
+.chart-bar.missed {
+    fill: var(--border);
+}
+
+.chart-axis {
+    font-size: 12px;
+    fill: var(--gray);
+}
+
+.chart-grid line {
+    stroke: var(--border);
+    stroke-dasharray: 2;
+}

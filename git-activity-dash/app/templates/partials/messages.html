@@ -1,0 +1,29 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Commit Message Analysis</h5>
+    </div>
+    <div class="card-body">
+        <div id="messagesLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="messagesContent" style="display: none;">
+            <canvas id="messagesChart" width="400" height="200"></canvas>
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Examples</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="messagesError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

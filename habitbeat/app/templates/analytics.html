@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Habitbeat{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+    <h1>Analytics</h1>
+
+    <div class="section">
+        <h2>Overall Summary</h2>
+        <div id="summary-stats" class="stats-grid"></div>
+    </div>
+
+    <div class="section">
+        <h2>Progress by Habit</h2>
+        <div id="habits-progress"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadAnalytics() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/analytics/summary', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            renderSummary(data);
+        }
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+    }
+}
+
+function renderSummary(data) {
+    document.getElementById('summary-stats').innerHTML = `
+        <div class="stat-card">
+            <h3>Total Habits</h3>
+            <p>${data.total_habits}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Active Today</h3>
+            <p>${data.total_checkins_today}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Best Streak</h3>
+            <p>${data.best_streak}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Completion Rate</h3>
+            <p>${(data.overall_completion_rate * 100).toFixed(0)}%</p>
+        </div>
+    `;
+}
+
+loadAnalytics();
+</script>
+{% endblock %}

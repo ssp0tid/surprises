@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<h1>Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ components|length }}</div>
+        <div class="stat-label">Total Components</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ active_incidents|length }}</div>
+        <div class="stat-label">Active Incidents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(overall_uptime) }}%</div>
+        <div class="stat-label">Overall Uptime (30d)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value status-badge {{ overall_status }}">{{ overall_status|title }}</div>
+        <div class="stat-label">Current Status</div>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <section class="dashboard-section">
+        <h2>Recent Check Results</h2>
+        {% if recent_results %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Status</th>
+                    <th>Response Time</th>
+                    <th>Checked At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in recent_results %}
+                <tr>
+                    <td>{{ result.component.name }}</td>
+                    <td><span class="status-badge {{ result.status }}">{{ result.status }}</span></td>
+                    <td>{{ result.response_time_ms }}ms</td>
+                    <td>{{ result.checked_at|relative_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">No check results yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+        <h2>Active Incidents</h2>
+        {% if active_incidents %}
+        <div class="incidents-list">
+            {% for incident in active_incidents %}
+            <div class="incident-card">
+                <div class="incident-header">
+                    <h3>{{ incident.title }}</h3>
+                    <span class="severity-badge {{ incident.severity }}">{{ incident.severity }}</span>
+                </div>
+                <p class="incident-meta">
+                    Status: {{ incident.status }} | Created: {{ incident.created_at|relative_time }}
+                </p>
+                <a href="{{ url_for('admin.incident', id=incident.id) }}" class="btn btn-small">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">No active incidents.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

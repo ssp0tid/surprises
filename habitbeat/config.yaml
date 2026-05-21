@@ -1,0 +1,33 @@
+app:
+  name: Habitbeat
+  version: 1.0.0
+  debug: true
+
+database:
+  uri: "sqlite:///app.db"
+  echo: false
+  pool_size: 5
+  pool_recycle: 3600
+
+auth:
+  jwt_algorithm: HS256
+  jwt_expiration: 86400
+  password_min_length: 8
+
+scheduler:
+  enabled: true
+  check_interval: 300
+  max_retries: 3
+
+api:
+  rate_limit: 100
+  rate_limit_period: 3600
+
+reminders:
+  enabled: true
+  default_time: "09:00:00"
+  webhook_timeout: 10
+
+charts:
+  default_period_days: 30
+  max_period_days: 365

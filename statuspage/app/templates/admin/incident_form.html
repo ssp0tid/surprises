@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}{% if incident %}Edit{% else %}New{% endif %} Incident{% endblock %}
+
+{% block admin_content %}
+<h1>{% if incident %}Edit{% else %}Report{% endif %} Incident</h1>
+
+<form method="POST" class="form">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+        {% if form.title.errors %}
+        <div class="form-errors">
+            {% for error in form.title.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.severity.label(class="form-label") }}
+        {{ form.severity(class="form-control") }}
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create Incident</button>
+        <a href="{{ url_for('admin.incidents') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

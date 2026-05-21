@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Certificate Authorities - Local CA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Certificate Authorities</h1>
+    <a href="{{ url_for('ca_create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create New CA
+    </a>
+</div>
+
+{% if cas %}
+    <div class="row g-4">
+        {% for ca in cas %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="mb-1">{{ ca.name }}</h5>
+                                <span class="badge bg-{{ 'primary' if ca.type == 'root' else 'secondary' }}">{{ ca.type }}</span>
+                            </div>
+                            <form action="{{ url_for('ca_delete', ca_id=ca.id) }}" method="post" onsubmit="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <p class="text-muted small mb-2">Subject: {{ ca.subject }}</p>
+                        <p class="text-muted small mb-2">Valid: {{ ca.not_before.strftime('%Y-%m-%d') }} to {{ ca.not_after.strftime('%Y-%m-%d') }}</p>
+                        <a href="{{ url_for('ca_detail', ca_id=ca.id) }}" class="btn btn-outline-primary btn-sm">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-award text-muted fs-1 mb-3"></i>
+            <p class="text-muted mb-3">No certificate authorities created yet.</p>
+            <a href="{{ url_for('ca_create') }}" class="btn btn-primary">Create Your First CA</a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

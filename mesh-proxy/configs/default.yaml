@@ -1,0 +1,103 @@
+version: "1.0"
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+
+admin:
+  host: "127.0.0.1"
+  port: 9090
+  enabled: true
+
+defaults:
+  timeout: 10s
+  retry_attempts: 0
+
+circuit_breaker:
+  max_requests: 100
+  interval: 10s
+  timeout: 60s
+  ready_to_trip_failure_rate_threshold: 0.5
+  minimum_requests: 5
+
+rate_limit:
+  requests_per_second: 100
+  burst: 20
+
+logging:
+  level: "info"
+  format: "json"
+
+routes:
+  - name: "api-service"
+    enabled: true
+    priority: 100
+    match:
+      path: "/api/v1/*"
+    backend:
+      url: "http://localhost:8080"
+    circuit_breaker:
+      enabled: true
+      failure_rate_threshold: 0.5
+      timeout: 30s
+      half_open_requests: 3
+    rate_limit:
+      requests_per_second: 50
+      burst: 10
+
+  - name: "api-service-v2"
+    enabled: true
+    priority: 50
+    match:
+      path: "/api/v2/*"
+    backend:
+      url: "http://localhost:8082"
+
+  - name: "health-check"
+    enabled: true
+    priority: 1
+    match:
+      path: "/health"
+    mock:
+      enabled: true
+      status_code: 200
+      headers:
+        Content-Type: "application/json"
+      body: '{"status":"ok"}'
+
+  - name: "delayed-service"
+    enabled: true
+    priority: 10
+    match:
+      path: "/delayed/*"
+    backend:
+      url: "http://localhost:8080"
+    delay:
+      fixed: 500ms
+      jitter: 50ms
+
+  - name: "mock-error"
+    enabled: false
+    match:
+      path: "/error/*"
+    mock:
+      enabled: true
+      status_code: 500
+      body: '{"error":"internal error"}'
+
+errors:
+  "404":
+    status_code: 404
+    body: "Not Found"
+  "429":
+    status_code: 429
+    body: "Rate limit exceeded"
+  "500":
+    status_code: 500
+    body: "Internal Server Error"
+  "503":
+    status_code: 503
+    body: "Service Unavailable"

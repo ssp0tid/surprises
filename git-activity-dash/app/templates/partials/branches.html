@@ -1,0 +1,28 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Branches</h5>
+    </div>
+    <div class="card-body">
+        <div id="branchesLoading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="branchesContent" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Last Commit</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="branchesTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="branchesError" class="alert alert-danger" style="display: none;">
+        </div>
+    </div>
+</div>

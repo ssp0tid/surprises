@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}SQL Playground - Interactive SQL Runner{% endblock %}
+
+{% block extra_head %}
+<!-- CodeMirror 5 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="playground-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Schema Browser -->
+        <section class="sidebar-section">
+            <h3 class="section-title">
+                <span class="icon">📋</span> Schema Browser
+            </h3>
+            <div id="schema-browser" class="schema-browser">
+                <div class="loading">Loading schema...</div>
+            </div>
+        </section>
+        
+        <!-- Sample Datasets -->
+        <section class="sidebar-section">
+            <h3 class="section-title">
+                <span class="icon">📁</span> Sample Datasets
+            </h3>
+            <div id="sample-datasets" class="sample-list">
+                <!-- Samples loaded dynamically -->
+            </div>
+        </section>
+        
+        <!-- Saved Queries -->
+        <section class="sidebar-section">
+            <h3 class="section-title">
+                <span class="icon">💾</span> Saved Queries
+            </h3>
+            <div id="saved-queries" class="saved-queries-list">
+                <div class="loading">Loading saved queries...</div>
+            </div>
+        </section>
+    </aside>
+    
+    <!-- Main Area -->
+    <div class="main-panel">
+        <!-- Query Editor -->
+        <section class="editor-section">
+            <div class="editor-toolbar">
+                <span class="toolbar-title">Query Editor</span>
+                <div class="toolbar-actions">
+                    <button id="btn-save" class="btn btn-secondary" title="Save Query">
+                        <span class="btn-icon">💾</span> Save
+                    </button>
+                    <button id="btn-run" class="btn btn-primary">
+                        <span class="btn-icon">▶</span> Run (Ctrl+Enter)
+                    </button>
+                    <button id="btn-clear" class="btn btn-secondary">
+                        <span class="btn-icon">🗑</span> Clear
+                    </button>
+                    <button id="btn-format" class="btn btn-secondary">
+                        <span class="btn-icon">✨</span> Format
+                    </button>
+                </div>
+            </div>
+            <div id="query-editor" class="code-editor"></div>
+            <div class="editor-status">
+                <span id="cursor-position">Ln 1, Col 1</span>
+                <span id="sql-dialect">SQLite</span>
+            </div>
+        </section>
+        
+        <!-- Results Panel -->
+        <section class="results-section">
+            <div class="results-toolbar">
+                <span class="toolbar-title">Results</span>
+                <div class="toolbar-actions">
+                    <span id="results-info" class="results-info"></span>
+                    <button id="btn-export-csv" class="btn btn-small" disabled>CSV</button>
+                    <button id="btn-export-json" class="btn btn-small" disabled>JSON</button>
+                </div>
+            </div>
+            <div id="results-container" class="results-container">
+                <div class="empty-state">
+                    <p>Run a query to see results</p>
+                    <p class="hint">Press Ctrl+Enter to execute</p>
+                </div>
+            </div>
+            <div id="results-pagination" class="pagination hidden">
+                <button id="prev-page" class="btn btn-small">← Previous</button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="next-page" class="btn btn-small">Next →</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Save Query Modal -->
+<div id="save-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Save Query</h3>
+            <button id="close-modal" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <label for="query-name">Query Name:</label>
+            <input type="text" id="query-name" class="input" placeholder="Enter a name for this query">
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-save" class="btn btn-secondary">Cancel</button>
+            <button id="confirm-save" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- sql.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.min.js"></script>
+<!-- CodeMirror 5 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<!-- Application Scripts -->
+<script src="{{ url_for('static', filename='js/codemirror-setup.js') }}"></script>
+<script src="{{ url_for('static', filename='js/results-table.js') }}"></script>
+<script src="{{ url_for('static', filename='js/schema-browser.js') }}"></script>
+<script src="{{ url_for('static', filename='js/query-history.js') }}"></script>
+<script src="{{ url_for('static', filename='js/export.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

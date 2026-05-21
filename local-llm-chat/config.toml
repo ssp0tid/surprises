@@ -1,0 +1,27 @@
+# Local LLM Chat Configuration
+# Copy this file to your project root or use --config flag
+
+[default]
+# Model settings
+current_model = "llama-3-8b.q4_k_m.gguf"
+model_dir = "models"
+
+# Generation settings
+temperature = 0.7
+max_tokens = 2048
+stream = true
+
+# System prompt
+system_prompt = "You are a helpful AI assistant."
+
+[display]
+# Terminal settings
+use_markdown = true
+syntax_highlighting = true
+show_tokens_per_second = true
+
+[history]
+# Conversation storage
+save_dir = "conversations"
+auto_save = true
+max_conversations = 100

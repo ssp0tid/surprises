@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Export - Local CA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Export Certificate</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="certId" class="form-label">Certificate *</label>
+                            <select class="form-select" id="certId" name="cert_id" required>
+                                <option value="">Select Certificate</option>
+                                {% for cert in certificates %}
+                                    <option value="{{ cert.id }}">{{ cert.name }} ({{ cert.common_name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="format" class="form-label">Format *</label>
+                            <select class="form-select" id="format" name="format">
+                                <option value="pem">PEM (Traditional)</option>
+                                <option value="p12">P12/PKCS12 (Windows/Java)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="passphrase" class="form-label">Passphrase (for P12)</label>
+                            <input type="password" class="form-control" id="passphrase" name="passphrase" placeholder="Optional">
+                            <small class="text-muted">Leave empty for no encryption</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">Export Formats</div>
+            <div class="card-body">
+                <h6>PEM Format</h6>
+                <p class="text-muted">Traditional PEM-encoded certificate. Can be used with most web servers (Apache, Nginx). Contains both the certificate and private key.</p>
+                
+                <h6>P12/PKCS12 Format</h6>
+                <p class="text-muted mb-0">Binary format commonly used by Windows and Java applications. Contains both certificate and private key, protected with a passphrase.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

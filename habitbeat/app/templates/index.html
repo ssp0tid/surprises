@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Habitbeat{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Welcome to Habitbeat</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Habits</h3>
+            <p class="stat-value" id="total-habits">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Active Today</h3>
+            <p class="stat-value" id="active-today">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Current Streak</h3>
+            <p class="stat-value" id="current-streak">-</p>
+        </div>
+        <div class="stat-card">
+            <h3>Completion Rate</h3>
+            <p class="stat-value" id="completion-rate">-</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Today's Habits</h2>
+        <div id="today-habits-list" class="habits-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>Quick Actions</h2>
+        <a href="/habits" class="btn btn-primary">Manage Habits</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadDashboard() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const response = await fetch('/api/analytics/summary', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('total-habits').textContent = data.total_habits;
+            document.getElementById('active-today').textContent = data.total_checkins_today;
+            document.getElementById('current-streak').textContent = data.best_streak;
+            document.getElementById('completion-rate').textContent = (data.overall_completion_rate * 100).toFixed(0) + '%';
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+loadDashboard();
+</script>
+{% endblock %}

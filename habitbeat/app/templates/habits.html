@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Habits - Habitbeat{% endblock %}
+
+{% block content %}
+<div class="habits-page">
+    <div class="header">
+        <h1>My Habits</h1>
+        <button class="btn btn-primary" onclick="showCreateModal()">+ New Habit</button>
+    </div>
+
+    <div id="habits-list" class="habits-grid"></div>
+
+    <div id="create-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Create New Habit</h2>
+            <form id="create-habit-form">
+                <div class="form-group">
+                    <label for="habit-name">Name</label>
+                    <input type="text" id="habit-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="habit-description">Description</label>
+                    <textarea id="habit-description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="habit-frequency">Frequency</label>
+                    <select id="habit-frequency">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="habit-category">Category</label>
+                    <select id="habit-category">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="hideCreateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadHabits() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/habits', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            renderHabits(data.habits);
+        }
+    } catch (error) {
+        console.error('Error loading habits:', error);
+    }
+}
+
+function renderHabits(habits) {
+    const container = document.getElementById('habits-list');
+    container.innerHTML = habits.map(habit => `
+        <div class="habit-card">
+            <h3>${habit.name}</h3>
+            <p>${habit.description || ''}</p>
+            <div class="habit-meta">
+                <span>Streak: ${habit.current_streak}</span>
+                <span>Rate: ${(habit.completion_rate * 100).toFixed(0)}%</span>
+            </div>
+            <button class="btn btn-small" onclick="checkIn(${habit.id})">Check In</button>
+        </div>
+    `).join('');
+}
+
+function showCreateModal() {
+    document.getElementById('create-modal').classList.remove('hidden');
+}
+
+function hideCreateModal() {
+    document.getElementById('create-modal').classList.add('hidden');
+}
+
+async function checkIn(habitId) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/habits/${habitId}/checkins`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+
+        if (response.ok) {
+            alert('Check-in recorded!');
+            loadHabits();
+        }
+    } catch (error) {
+        console.error('Error recording check-in:', error);
+    }
+}
+
+document.getElementById('create-habit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('habit-name').value;
+    const description = document.getElementById('habit-description').value;
+    const frequency = document.getElementById('habit-frequency').value;
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/habits', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, description, frequency })
+        });
+
+        if (response.ok) {
+            hideCreateModal();
+            loadHabits();
+        }
+    } catch (error) {
+        console.error('Error creating habit:', error);
+    }
+});
+
+loadHabits();
+</script>
+{% endblock %}

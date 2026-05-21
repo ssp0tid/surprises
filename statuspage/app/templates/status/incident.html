@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Incident - {{ incident.title }}{% endblock %}
+
+{% block content %}
+<div class="incident-page">
+    <header class="page-header">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="{{ url_for('status.public_page', org_slug=organization.slug) }}">Back to Status</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="incident-detail">
+        <div class="container">
+            <div class="incident-header">
+                <h1>{{ incident.title }}</h1>
+                <div class="incident-badges">
+                    <span class="badge badge-{{ incident.severity }}">{{ incident.severity }}</span>
+                    <span class="badge badge-{{ incident.status }}">{{ incident.status }}</span>
+                </div>
+            </div>
+
+            <div class="incident-meta">
+                <time datetime="{{ incident.created_at.isoformat() }}">
+                    {{ incident.created_at | datetime }}
+                </time>
+                {% if incident.resolved_at %}
+                <span> — </span>
+                <time datetime="{{ incident.resolved_at.isoformat() }}">
+                    {{ incident.resolved_at | datetime }}
+                </time>
+                {% endif %}
+            </div>
+
+            {% if incident.description %}
+            <div class="incident-description">
+                <p>{{ incident.description }}</p>
+            </div>
+            {% endif %}
+
+            <div class="incident-timeline">
+                <h2>Timeline</h2>
+                <div class="timeline">
+                    {% for update in incident.timeline.order_by('created_at').all() %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-status">{{ update.status | upper }}</span>
+                                <time class="timeline-time">{{ update.created_at | datetime }}</time>
+                            </div>
+                            {% if update.message %}
+                            <p class="timeline-message">{{ update.message }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
