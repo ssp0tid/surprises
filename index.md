@@ -40,8 +40,6 @@ Go + ClickHouse log management with SSE streaming, search. Full-stack.
 ### kanboardx/
 Drag-and-drop Kanban board. Flask single-file (2655 lines).
 
-### expiring-link-shortener/
-Temporary link shortener with expiration. Flask.
 
 ### markdown-wiki/
 Personal markdown wiki with bidirectional [[wiki-link]] linking, #tag organization, full-text search. Preact + Vite + Fastify.
@@ -156,8 +154,6 @@ Visual cron job scheduler. Python Textual.
 ### termtimer/
 Terminal timer and alarm clock. Python Textual.
 
-### tickertape/
-Stock/crypto portfolio tracker. Python.
 
 ### shellmem/
 Shell history manager with fuzzy search. Rust TUI.
@@ -172,8 +168,6 @@ Terminal-based incident management for on-call engineers — incident list with 
 
 ## Utilities
 
-### browser-pdf-extractor/
-Client-side PDF text extractor. Single HTML file.
 
 ### clipstash/
 Clipboard history manager. Flask + SQLite.
