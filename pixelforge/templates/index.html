@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelForge</title>
+    <link rel="icon" href="/static/img/favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-gray-900 text-gray-100 h-screen flex flex-col overflow-hidden select-none">
+    <!-- Top Bar -->
+    <header class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
+        <div class="flex items-center gap-4">
+            <h1 class="text-lg font-bold text-purple-400">PixelForge</h1>
+            <div class="flex gap-2">
+                <button id="btn-new" class="btn-header">New</button>
+                <button id="btn-save" class="btn-header">Save</button>
+                <button id="btn-load" class="btn-header">Load</button>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <label class="text-sm text-gray-400">Size:</label>
+            <select id="canvas-size" class="bg-gray-700 text-sm rounded px-2 py-1 border border-gray-600">
+                <option value="8">8×8</option>
+                <option value="16" selected>16×16</option>
+                <option value="32">32×32</option>
+                <option value="64">64×64</option>
+                <option value="128">128×128</option>
+            </select>
+            <label class="flex items-center gap-1 text-sm text-gray-400">
+                <input type="checkbox" id="toggle-grid" checked class="rounded">
+                Grid
+            </label>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="flex flex-1 overflow-hidden">
+        <!-- Left Panel: Tools -->
+        <aside id="tools-panel" class="w-14 bg-gray-800 border-r border-gray-700 flex flex-col items-center py-2 gap-1 shrink-0">
+            <button class="tool-btn active" data-tool="pencil" title="Pencil (B)">✏️</button>
+            <button class="tool-btn" data-tool="eraser" title="Eraser (E)">🧹</button>
+            <button class="tool-btn" data-tool="fill" title="Fill (G)">🪣</button>
+            <button class="tool-btn" data-tool="line" title="Line (L)">📏</button>
+            <button class="tool-btn" data-tool="rect" title="Rectangle (R)">⬜</button>
+            <button class="tool-btn" data-tool="circle" title="Circle (C)">⭕</button>
+            <button class="tool-btn" data-tool="eyedropper" title="Eyedropper (I)">💉</button>
+            <button class="tool-btn" data-tool="selection" title="Selection (M)">⬚</button>
+            <div class="mt-auto flex flex-col items-center gap-1">
+                <div id="color-fg" class="w-8 h-8 rounded border-2 border-white cursor-pointer" title="Foreground color"></div>
+                <div id="color-bg" class="w-6 h-6 rounded border border-gray-500 cursor-pointer -mt-3 ml-4" title="Background color"></div>
+                <span class="text-xs text-gray-500 mt-1">X: swap</span>
+            </div>
+        </aside>
+
+        <!-- Center: Canvas -->
+        <section class="flex-1 flex items-center justify-center overflow-hidden relative" id="canvas-container">
+            <canvas id="main-canvas"></canvas>
+            <div id="zoom-indicator" class="absolute bottom-2 right-2 text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">1x</div>
+        </section>
+
+        <!-- Right Panel: Layers + Colors + Animation -->
+        <aside class="w-64 bg-gray-800 border-l border-gray-700 flex flex-col shrink-0 overflow-hidden">
+            <!-- Color Palette Section -->
+            <div class="p-3 border-b border-gray-700">
+                <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Color</h3>
+                <div class="flex gap-2 mb-2">
+                    <canvas id="hue-wheel" width="120" height="120" class="cursor-crosshair"></canvas>
+                    <div class="flex flex-col gap-1">
+                        <input type="text" id="hex-input" class="bg-gray-700 text-sm rounded px-2 py-1 w-20 border border-gray-600" value="#000000" maxlength="7">
+                        <div id="sl-square" class="w-16 h-16 cursor-crosshair border border-gray-600 rounded"></div>
+                    </div>
+                </div>
+                <div id="preset-colors" class="grid grid-cols-8 gap-1 mb-2"></div>
+                <div class="text-xs text-gray-500 mb-1">Recent</div>
+                <div id="recent-colors" class="grid grid-cols-8 gap-1"></div>
+            </div>
+
+            <!-- Layers Section -->
+            <div class="p-3 border-b border-gray-700 flex-1 overflow-y-auto">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase">Layers</h3>
+                    <div class="flex gap-1">
+                        <button id="btn-add-layer" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Add layer">+</button>
+                        <button id="btn-merge-layer" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Merge down">⤓</button>
+                        <button id="btn-flatten" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Flatten all">⊟</button>
+                    </div>
+                </div>
+                <div id="layers-list" class="flex flex-col gap-1"></div>
+            </div>
+
+            <!-- Animation Section -->
+            <div class="p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase">Frames</h3>
+                    <div class="flex gap-1">
+                        <button id="btn-add-frame" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Add frame">+</button>
+                        <button id="btn-dup-frame" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Duplicate frame">⧉</button>
+                        <button id="btn-del-frame" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-0.5 rounded" title="Delete frame">×</button>
+                    </div>
+                </div>
+                <div id="frames-strip" class="flex gap-1 overflow-x-auto pb-1 mb-2"></div>
+                <div class="flex items-center gap-2">
+                    <button id="btn-play" class="text-xs bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded">▶ Play</button>
+                    <label class="flex items-center gap-1 text-xs text-gray-400">
+                        <input type="checkbox" id="toggle-onion" class="rounded">
+                        Onion
+                    </label>
+                    <label class="flex items-center gap-1 text-xs text-gray-400">
+                        ms:
+                        <input type="number" id="frame-duration" class="bg-gray-700 w-12 text-xs rounded px-1 py-0.5 border border-gray-600" value="100" min="16" max="5000">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="p-3 border-t border-gray-700">
+                <div class="flex gap-2">
+                    <button id="btn-export-png" class="text-xs bg-green-700 hover:bg-green-600 px-3 py-1 rounded">PNG</button>
+                    <button id="btn-export-sheet" class="text-xs bg-green-700 hover:bg-green-600 px-3 py-1 rounded">Sheet</button>
+                    <button id="btn-export-gif" class="text-xs bg-green-700 hover:bg-green-600 px-3 py-1 rounded">GIF</button>
+                    <select id="export-scale" class="bg-gray-700 text-xs rounded px-1 border border-gray-600">
+                        <option value="1">1x</option>
+                        <option value="2">2x</option>
+                        <option value="4" selected>4x</option>
+                        <option value="8">8x</option>
+                        <option value="16">16x</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Load Project Modal -->
+    <div id="modal-load" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto border border-gray-700">
+            <h2 class="text-lg font-bold mb-4">Load Project</h2>
+            <div id="projects-list" class="flex flex-col gap-2 mb-4"></div>
+            <button id="btn-modal-close" class="text-sm bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Playback Modal -->
+    <div id="modal-playback" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold">Animation Preview</h2>
+                <button id="btn-stop-playback" class="text-sm bg-red-700 hover:bg-red-600 px-3 py-1 rounded">Stop</button>
+            </div>
+            <canvas id="playback-canvas" class="border border-gray-600 rounded"></canvas>
+        </div>
+    </div>
+
+    <script src="/static/js/canvas.js"></script>
+    <script src="/static/js/tools.js"></script>
+    <script src="/static/js/layers.js"></script>
+    <script src="/static/js/palette.js"></script>
+    <script src="/static/js/animation.js"></script>
+    <script src="/static/js/export.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

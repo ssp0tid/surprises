@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Subscriptions</h1>
+    <a href="{{ url_for('add_subscription') }}" class="mt-2 sm:mt-0 inline-flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 text-sm font-medium">+ Add Subscription</a>
+</div>
+
+<div class="bg-white rounded-lg shadow mb-6 p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+    <form method="get" class="flex flex-col sm:flex-row gap-4 w-full">
+        <select name="category" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat | capitalize }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <option value="next_renewal" {% if current_sort == 'next_renewal' %}selected{% endif %}>Sort by Renewal Date</option>
+            <option value="amount" {% if current_sort == 'amount' %}selected{% endif %}>Sort by Amount</option>
+        </select>
+        <button type="submit" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-4 py-2 rounded-md text-sm">Filter</button>
+    </form>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="text-xs text-gray-500 uppercase bg-gray-50">
+            <tr>
+                <th class="px-4 py-3">Name</th>
+                <th class="px-4 py-3">Category</th>
+                <th class="px-4 py-3">Amount</th>
+                <th class="px-4 py-3">Cycle</th>
+                <th class="px-4 py-3">Next Renewal</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in subscriptions %}
+            <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium">
+                    {{ sub.name }}
+                    {% if sub.url %}<a href="{{ sub.url }}" target="_blank" class="text-indigo-500 text-xs ml-1">↗</a>{% endif %}
+                </td>
+                <td class="px-4 py-3 capitalize">{{ sub.category }}</td>
+                <td class="px-4 py-3">{{ sub.currency }} {{ sub.amount }}</td>
+                <td class="px-4 py-3 capitalize">{{ sub.billing_cycle }}</td>
+                <td class="px-4 py-3">{{ sub.next_renewal }}</td>
+                <td class="px-4 py-3">
+                    {% if sub.active %}
+                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Active</span>
+                    {% else %}
+                    <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">Paused</span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <a href="{{ url_for('edit_subscription', id=sub.id) }}" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Edit</a>
+                        <form method="post" action="{{ url_for('toggle_subscription', id=sub.id) }}" class="inline">
+                            <button type="submit" class="text-yellow-600 hover:text-yellow-800 text-xs font-medium">
+                                {% if sub.active %}Pause{% else %}Activate{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url_for('delete_subscription', id=sub.id) }}" class="inline" onsubmit="return confirmDelete('{{ sub.name }}')">
+                            <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-medium">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="px-4 py-8 text-center text-gray-500">No subscriptions found. <a href="{{ url_for('add_subscription') }}" class="text-indigo-600 hover:underline">Add one</a>.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

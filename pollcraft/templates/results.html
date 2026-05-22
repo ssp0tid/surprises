@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Results: {{ poll.title }} — Pollcraft{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ poll.title }}</h1>
+        {% if poll.description %}
+        <p class="text-gray-600 mb-4">{{ poll.description }}</p>
+        {% endif %}
+
+        {% if poll.closed_at %}
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-2 rounded text-sm mb-4">
+            This poll is closed. Final results shown below.
+        </div>
+        {% else %}
+        <p class="text-sm text-green-600 mb-4 flex items-center gap-1">
+            <span class="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            Live — results update in real-time
+        </p>
+        {% endif %}
+
+        <div class="mb-4">
+            <p class="text-sm text-gray-500">Total votes: <span id="total-votes">0</span></p>
+        </div>
+
+        <canvas id="results-chart" class="w-full" height="200"></canvas>
+
+        <div id="results-list" class="mt-4 space-y-2"></div>
+    </div>
+
+    {% if poll.allow_comments %}
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Comments</h2>
+
+        <form id="comment-form" class="mb-6">
+            <div class="flex gap-2 mb-2">
+                <input type="text" id="comment-author" placeholder="Name (optional)" maxlength="100"
+                       class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-40">
+                <input type="text" id="comment-text" placeholder="Add a comment..." maxlength="1000" required
+                       class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+                    Post
+                </button>
+            </div>
+        </form>
+
+        <div id="comments-list" class="space-y-3"></div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initSSE('{{ poll.slug }}');
+        {% if poll.allow_comments %}
+        initComments('{{ poll.slug }}');
+        {% endif %}
+    });
+</script>
+{% endblock %}

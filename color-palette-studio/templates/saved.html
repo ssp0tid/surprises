@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Palettes — Color Palette Studio</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Color Palette Studio</h1>
+        <nav>
+            <a href="/">Workspace</a>
+            <a href="/saved" class="active">Saved Palettes</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Saved Palettes</h2>
+        <div id="palettes-gallery" class="palettes-gallery" aria-label="Saved palettes gallery"></div>
+        <p id="empty-message" class="empty-message" hidden>No saved palettes yet. Go to the workspace to create one.</p>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadPalettes);
+
+        async function loadPalettes() {
+            const gallery = document.getElementById('palettes-gallery');
+            const emptyMsg = document.getElementById('empty-message');
+
+            try {
+                const res = await fetch('/api/palette/list');
+                const json = await res.json();
+                if (!json.success || json.data.length === 0) {
+                    emptyMsg.hidden = false;
+                    return;
+                }
+
+                json.data.forEach(palette => {
+                    const card = document.createElement('div');
+                    card.className = 'palette-card';
+
+                    const title = document.createElement('h3');
+                    title.textContent = palette.name;
+                    card.appendChild(title);
+
+                    const swatches = document.createElement('div');
+                    swatches.className = 'card-swatches';
+                    palette.colors.forEach(color => {
+                        const swatch = document.createElement('div');
+                        swatch.className = 'card-swatch';
+                        swatch.style.backgroundColor = color;
+                        swatch.title = color;
+                        swatches.appendChild(swatch);
+                    });
+                    card.appendChild(swatches);
+
+                    const meta = document.createElement('span');
+                    meta.className = 'palette-date';
+                    meta.textContent = new Date(palette.created_at).toLocaleDateString();
+                    card.appendChild(meta);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.type = 'button';
+                    deleteBtn.setAttribute('aria-label', `Delete palette ${palette.name}`);
+                    deleteBtn.addEventListener('click', async () => {
+                        if (!confirm(`Delete "${palette.name}"?`)) return;
+                        const delRes = await fetch(`/api/palette/${palette.id}`, { method: 'DELETE' });
+                        const delJson = await delRes.json();
+                        if (delJson.success) {
+                            card.remove();
+                            if (gallery.children.length === 0) {
+                                emptyMsg.hidden = false;
+                            }
+                        }
+                    });
+                    card.appendChild(deleteBtn);
+
+                    gallery.appendChild(card);
+                });
+            } catch (err) {
+                gallery.textContent = 'Failed to load palettes.';
+            }
+        }
+    </script>
+</body>
+</html>

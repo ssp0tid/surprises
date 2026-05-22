@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}ChartCraft — Gallery{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Saved Charts</h1>
+    <a href="/" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">New Chart</a>
+</div>
+
+<div id="gallery-loading" class="text-center text-gray-500 py-12">Loading charts...</div>
+<div id="gallery-empty" class="text-center text-gray-500 py-12 hidden">
+    <p class="text-lg">No charts saved yet.</p>
+    <a href="/" class="text-indigo-600 hover:underline">Create your first chart</a>
+</div>
+
+<div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', loadGallery);
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+async function loadGallery() {
+    const loading = document.getElementById('gallery-loading');
+    const empty = document.getElementById('gallery-empty');
+    const grid = document.getElementById('gallery-grid');
+
+    try {
+        const res = await fetch('/api/charts');
+        if (!res.ok) throw new Error('Failed to load charts');
+        const charts = await res.json();
+
+        loading.classList.add('hidden');
+
+        if (charts.length === 0) {
+            empty.classList.remove('hidden');
+            return;
+        }
+
+        grid.classList.remove('hidden');
+        grid.innerHTML = charts.map(chart => {
+            const safeTitle = escapeHtml(chart.title);
+            const safeId = encodeURIComponent(chart.id);
+            return `
+            <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                <a href="/chart/${safeId}" class="block">
+                    ${chart.thumbnail
+                        ? `<img src="${chart.thumbnail}" alt="${safeTitle}" class="w-full h-48 object-contain bg-gray-50 p-2">`
+                        : `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400">No preview</div>`
+                    }
+                </a>
+                <div class="p-3 flex items-center justify-between">
+                    <div>
+                        <a href="/chart/${safeId}" class="font-medium text-gray-800 hover:text-indigo-600">${safeTitle}</a>
+                        <p class="text-xs text-gray-500">${new Date(chart.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <button onclick="deleteChart('${safeId}')" class="text-red-500 hover:text-red-700 text-sm" title="Delete">
+                        &#x2715;
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (err) {
+        loading.textContent = 'Error loading charts: ' + err.message;
+    }
+}
+
+async function deleteChart(id) {
+    if (!confirm('Delete this chart?')) return;
+    try {
+        const res = await fetch(`/api/charts/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete');
+        loadGallery();
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+</script>
+{% endblock %}

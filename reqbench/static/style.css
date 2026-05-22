@@ -1,0 +1,17 @@
+.sidebar-tab.active {
+    color: #e2e8f0;
+    border-bottom-color: #6366f1;
+}
+
+.req-tab.active {
+    color: #e2e8f0;
+    border-bottom-color: #6366f1;
+}
+
+.bg-gray-850 {
+    background-color: #1a1f2e;
+}
+
+.hover\:bg-gray-750:hover {
+    background-color: #2d3548;
+}

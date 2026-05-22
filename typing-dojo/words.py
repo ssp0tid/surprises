@@ -1,0 +1,55 @@
+"""Word lists by difficulty for Typing Dojo."""
+
+EASY_WORDS: list[str] = [
+    "the", "and", "for", "are", "but", "not", "you", "all", "can", "had",
+    "her", "was", "one", "our", "out", "day", "get", "has", "him", "his",
+    "how", "its", "may", "new", "now", "old", "see", "way", "who", "boy",
+    "did", "let", "put", "say", "she", "too", "use", "dad", "mom", "run",
+    "big", "end", "far", "got", "hot", "job", "key", "lot", "map", "net",
+    "own", "pay", "red", "sit", "top", "try", "war", "yes", "yet", "ago",
+    "air", "ask", "bad", "bed", "bit", "box", "bus", "car", "cat", "cup",
+    "cut", "dog", "dry", "eat", "egg", "eye", "fan", "few", "fit", "fly",
+    "fun", "gap", "gas", "gun", "hat", "hit", "ice", "ill", "jam", "joy",
+    "kid", "lab", "law", "leg", "lie", "lip", "log", "low", "mad", "mix",
+    "mud", "nod", "nor", "nut", "odd", "oil", "pan", "pen", "pet", "pin",
+]
+
+MEDIUM_WORDS: list[str] = [
+    "about", "after", "again", "below", "between", "change", "could",
+    "every", "found", "great", "house", "large", "learn", "never",
+    "other", "place", "plant", "point", "right", "small", "sound",
+    "spell", "still", "study", "their", "there", "these", "thing",
+    "think", "those", "three", "water", "where", "which", "world",
+    "would", "write", "always", "animal", "answer", "before", "begin",
+    "being", "below", "better", "black", "bring", "build", "carry",
+    "clean", "close", "color", "cover", "cross", "dance", "drink",
+    "drive", "earth", "eight", "enjoy", "enter", "equal", "event",
+    "exist", "extra", "faith", "field", "fight", "final", "floor",
+    "force", "front", "green", "group", "guard", "guess", "happy",
+    "heart", "heavy", "horse", "human", "image", "issue", "judge",
+    "knife", "laugh", "level", "light", "limit", "local", "lunch",
+    "magic", "match", "metal", "might", "model", "money", "month",
+    "moral", "mouth", "music", "night", "noise", "north", "novel",
+    "nurse", "ocean", "offer", "order", "paint", "paper", "party",
+]
+
+HARD_WORDS: list[str] = [
+    "absolute", "abstract", "academic", "accurate", "achieved", "acquired",
+    "activity", "actually", "addition", "adequate", "adjusted", "advanced",
+    "affected", "afforded", "although", "ambition", "analysis", "announce",
+    "anything", "anywhere", "apparent", "approach", "approval", "argument",
+    "arranged", "assembly", "assuming", "attached", "attempts", "audience",
+    "bachelor", "backward", "balanced", "bargain", "basement", "becoming",
+    "behavior", "believed", "benefits", "birthday", "boundary", "breaking",
+    "breeding", "brilliant", "brothers", "building", "bulletin", "business",
+    "calendar", "campaign", "capacity", "captured", "cardinal", "carrying",
+    "category", "cautious", "ceremony", "chairman", "champion", "changing",
+    "chapters", "chemical", "children", "choosing", "circular", "civilian",
+    "climbing", "clothing", "coaching", "collapse", "colonial", "colorful",
+    "combined", "comeback", "commands", "commerce", "commonly", "communal",
+    "compared", "compares", "compiler", "complain", "complete", "composed",
+    "compound", "computer", "concepts", "concerns", "concrete", "conflict",
+    "confused", "congress", "connects", "conquest", "consider", "consists",
+    "constant", "consumer", "contains", "contempt", "contents", "continue",
+    "contract", "contrast", "controls", "convince", "cookbook", "corridor",
+]

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ invoice.invoice_number }} — Invoicely{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">{{ invoice.invoice_number }}</h1>
+        <p class="text-sm text-gray-500">Created {{ invoice.created_at }}</p>
+    </div>
+    <div class="flex gap-3">
+        {% if invoice.status == 'draft' %}
+        <button onclick="updateStatus('sent')" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Mark as Sent</button>
+        {% endif %}
+        {% if invoice.status in ('sent', 'overdue') %}
+        <button onclick="updateStatus('paid')" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700">Mark as Paid</button>
+        {% endif %}
+        <a href="{{ url_for('invoice_pdf', invoice_id=invoice.id) }}" class="bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-900">Download PDF</a>
+        <a href="{{ url_for('invoice_edit', invoice_id=invoice.id) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">Edit</a>
+        <form method="post" action="{{ url_for('invoice_delete', invoice_id=invoice.id) }}" class="inline" onsubmit="return confirm('Delete this invoice?')">
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Client</h3>
+            <p class="text-gray-900 font-medium">{{ invoice.client_name }}</p>
+            {% if invoice.client_company %}<p class="text-sm text-gray-600">{{ invoice.client_company }}</p>{% endif %}
+            {% if invoice.client_email %}<p class="text-sm text-gray-600">{{ invoice.client_email }}</p>{% endif %}
+            {% if invoice.client_address %}<p class="text-sm text-gray-600 whitespace-pre-line">{{ invoice.client_address }}</p>{% endif %}
+            {% if invoice.client_phone %}<p class="text-sm text-gray-600">{{ invoice.client_phone }}</p>{% endif %}
+        </div>
+        <div class="text-right">
+            <div class="mb-2">
+                {% if invoice.status == 'paid' %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">Paid</span>
+                {% elif invoice.status == 'sent' %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">Sent</span>
+                {% elif invoice.status == 'overdue' %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">Overdue</span>
+                {% else %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
+                {% endif %}
+            </div>
+            <p class="text-sm text-gray-600">Issue Date: {{ invoice.issue_date }}</p>
+            <p class="text-sm text-gray-600">Due Date: {{ invoice.due_date }}</p>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Unit Price</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for item in invoice.items %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ item.description }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">${{ "%.2f"|format(item.unit_price) }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">${{ "%.2f"|format(item.quantity * item.unit_price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6 border-t pt-4 text-right">
+        <p class="text-sm text-gray-600">Subtotal: ${{ "%.2f"|format(invoice.subtotal) }}</p>
+        <p class="text-sm text-gray-600">Tax ({{ invoice.tax_rate }}%): ${{ "%.2f"|format(invoice.tax_amount) }}</p>
+        <p class="text-xl font-bold text-gray-900">Total: ${{ "%.2f"|format(invoice.total) }}</p>
+    </div>
+
+    {% if invoice.notes %}
+    <div class="mt-6 border-t pt-4">
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Notes</h3>
+        <p class="text-sm text-gray-700 whitespace-pre-line">{{ invoice.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+function updateStatus(status) {
+    fetch('{{ url_for("invoice_status", invoice_id=invoice.id) }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: status})
+    }).then(r => r.json()).then(data => {
+        if (data.success) location.reload();
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

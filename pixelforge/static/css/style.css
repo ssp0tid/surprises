@@ -1,0 +1,59 @@
+.tool-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded text-lg hover:bg-gray-700 transition-colors;
+}
+
+.tool-btn.active {
+    @apply bg-purple-600 hover:bg-purple-500;
+}
+
+.btn-header {
+    @apply text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors;
+}
+
+.layer-item {
+    @apply flex items-center gap-2 px-2 py-1.5 rounded bg-gray-750 hover:bg-gray-700 cursor-pointer transition-colors;
+}
+
+.layer-item.active {
+    @apply bg-purple-900/50 border border-purple-500;
+}
+
+.frame-thumb {
+    @apply w-12 h-12 border border-gray-600 rounded cursor-pointer flex-shrink-0;
+}
+
+.frame-thumb.active {
+    @apply border-purple-500 border-2;
+}
+
+#main-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+#playback-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.bg-gray-750 {
+    background-color: #2d3748;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a202c;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}ChartCraft — Editor{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="space-y-4">
+        <section class="bg-white rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold mb-3">Data Input</h2>
+            <div class="flex gap-2 mb-3">
+                <button id="btn-csv" class="px-3 py-1 bg-indigo-600 text-white rounded text-sm" onclick="setInputMode('csv')">CSV</button>
+                <button id="btn-json" class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm" onclick="setInputMode('json')">JSON</button>
+            </div>
+            <textarea id="data-input" class="w-full h-40 border border-gray-300 rounded p-2 font-mono text-sm" placeholder="Paste your CSV data here..."></textarea>
+            <button onclick="parseData()" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Parse</button>
+            <div id="parse-error" class="mt-2 text-red-600 text-sm hidden"></div>
+            <div id="data-preview" class="mt-3 overflow-x-auto hidden">
+                <table id="preview-table" class="min-w-full text-sm border border-gray-200">
+                </table>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold mb-3">Chart Configuration</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Chart Type</label>
+                    <select id="chart-type" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="scheduleRender()">
+                        <option value="bar">Bar</option>
+                        <option value="line">Line</option>
+                        <option value="pie">Pie</option>
+                        <option value="doughnut">Doughnut</option>
+                        <option value="radar">Radar</option>
+                        <option value="polarArea">Polar Area</option>
+                        <option value="scatter">Scatter</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Color Palette</label>
+                    <select id="palette" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="scheduleRender()">
+                        <option value="vibrant">Vibrant</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="earth">Earth</option>
+                        <option value="ocean">Ocean</option>
+                        <option value="monochrome">Monochrome</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">X-Axis Column</label>
+                    <select id="x-axis" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="scheduleRender()">
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Y-Axis Columns</label>
+                    <select id="y-axis" class="w-full border border-gray-300 rounded p-2 text-sm" multiple onchange="scheduleRender()">
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Chart Title</label>
+                <input id="chart-title" type="text" class="w-full border border-gray-300 rounded p-2 text-sm" placeholder="My Chart" oninput="scheduleRender()">
+            </div>
+            <div class="mt-3 flex gap-4">
+                <label class="flex items-center gap-1 text-sm">
+                    <input type="checkbox" id="show-legend" checked onchange="scheduleRender()"> Legend
+                </label>
+                <label class="flex items-center gap-1 text-sm">
+                    <input type="checkbox" id="show-grid" checked onchange="scheduleRender()"> Grid
+                </label>
+                <label class="flex items-center gap-1 text-sm">
+                    <input type="checkbox" id="show-labels" onchange="scheduleRender()"> Data Labels
+                </label>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold mb-3">Export</h2>
+            <div class="flex gap-3">
+                <button onclick="exportPNG()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Download PNG</button>
+                <button onclick="saveToServer()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Save & Share</button>
+            </div>
+            <div id="share-result" class="mt-2 text-sm hidden"></div>
+        </section>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Preview</h2>
+        <div class="relative" style="min-height: 400px;">
+            <canvas id="chart-canvas"></canvas>
+        </div>
+        <p id="no-data-msg" class="text-gray-400 text-center mt-8">Parse data to see chart preview</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chartcraft.js') }}"></script>
+{% endblock %}

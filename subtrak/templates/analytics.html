@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Analytics</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-500 uppercase tracking-wide">Monthly Spend</p>
+        <p class="text-2xl font-bold text-indigo-600">${{ total_monthly }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-500 uppercase tracking-wide">Yearly Projection</p>
+        <p class="text-2xl font-bold text-indigo-600">${{ total_yearly }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-500 uppercase tracking-wide">Avg per Subscription</p>
+        <p class="text-2xl font-bold text-indigo-600">${{ avg_cost }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-500 uppercase tracking-wide">Most Expensive</p>
+        <p class="text-2xl font-bold text-red-600">${{ most_expensive }}</p>
+        <p class="text-xs text-gray-400 mt-1">Cheapest: ${{ cheapest }}</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">Monthly Spend by Category</h2>
+        <canvas id="categoryBarChart"></canvas>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">Subscriptions by Category</h2>
+        <canvas id="categoryPieChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const categorySpendData = {{ by_category_spend | tojson }};
+    const categoryCountData = {{ by_category_count | tojson }};
+
+    renderBarChart('categoryBarChart', categorySpendData, 'Monthly Spend ($)');
+    renderPieChart('categoryPieChart', categoryCountData);
+</script>
+{% endblock %}

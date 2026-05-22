@@ -203,7 +203,6 @@ Terminal-based email client with IMAP/SMTP support, inbox management, email comp
 ### code-sentinel/
 AI-powered local code review assistant - analyzes code for bugs, security issues, and anti-patterns using local LLMs (llama.cpp/GGUF). Textual TUI ready. Python Typer + llama-cpp-python.
 
-*End of Index*
 
 
 ---
@@ -231,3 +230,53 @@ Terminal Tetris game with all 7 tetrominoes, ghost piece, wall kicks, scoring, h
 
 ### maze-runner/
 Terminal maze game with generation (recursive backtracker, Kruskal's, Prim's), animated solving (BFS, DFS, A*), and playable mode with timer and high scores. Python 3 curses (stdlib only).
+
+### csvql/
+CLI tool to run SQL queries against CSV/TSV files using in-memory SQLite. Supports JOINs across multiple files, auto-detects delimiters and column types, outputs as rich table/CSV/TSV/JSON. Python 3 + rich.
+
+### algo-theater/
+Interactive terminal algorithm visualizer — watch sorting, searching, and pathfinding algorithms execute step-by-step with animated bar charts and grids. Python 3 Textual TUI.
+
+### flashforge/
+CLI spaced repetition flashcard system with Leitner box algorithm, multiple decks, CSV/Markdown import/export, and progress statistics. Python 3 Click + Rich + SQLite.
+
+### color-palette-studio/
+Web-based color palette generator with 6 harmony rules (complementary, analogous, triadic, split-complementary, tetradic, monochromatic), WCAG contrast checking, and export to CSS/SCSS/Tailwind. Flask + SQLite.
+
+### typing-dojo/
+Terminal typing speed trainer with WPM tracking, accuracy stats, multiple modes (quick/timed/code), and persistent high scores. Python 3 curses (stdlib only).
+
+### loc-counter/
+Fast lines-of-code counter CLI — breaks down source files into code, comments, and blanks by language. Supports 25+ languages, respects .gitignore, outputs as rich ASCII table/JSON/CSV. Python 3 stdlib only.
+
+### markov-poet/
+Markov chain text generator that builds models from input text and generates poetry, prose, or haiku. Configurable chain order (1-5), corpus management with SQLite persistence, syllable-aware line breaking. Python 3 stdlib only.
+
+### termchart/
+Terminal chart renderer — renders bar charts, line charts, scatter plots, and sparklines from CSV/JSON/stdin using Unicode block and Braille characters. Python 3 stdlib only.
+
+### diskvu/
+Interactive terminal disk usage analyzer — ncdu-style directory explorer with proportional bar charts, sorting, threaded scanning with progress, and delete with confirmation. Python 3 curses (stdlib only).
+
+### subtrak/
+Subscription expense tracker — web app for tracking recurring subscriptions with spend visualization, category breakdowns, renewal alerts, and analytics dashboard. Python 3 Flask + SQLite + Chart.js + TailwindCSS.
+
+### nonogram-puzzler/
+Browser-based Nonogram (Picross) puzzle game with random puzzle generation, three difficulty levels, timer, auto-save, and solution validation. Python 3 Flask + SQLite + vanilla JS.
+
+### pollcraft/
+Real-time poll and survey builder with live results via SSE, IP-based duplicate detection, optional comments, and admin management via secret tokens. Python 3 Flask + SQLite + Chart.js + TailwindCSS.
+
+### reqbench/
+Self-hosted web-based HTTP request builder and API tester — build requests, inspect responses, save to collections, manage environments with variable interpolation. Python 3 Flask + SQLite + vanilla JS + TailwindCSS CDN.
+
+### pixelforge/
+Browser-based pixel art editor with layers, animation frames, drawing tools (pencil, eraser, fill, line, rect, circle, eyedropper), and PNG/GIF export. Python 3 Flask + SQLite + HTML5 Canvas + TailwindCSS CDN.
+
+### chartcraft/
+Interactive web-based chart builder — paste CSV/JSON data, pick chart types, customize colors/labels, export as PNG or share via link. Python 3 Flask + SQLite + Chart.js + TailwindCSS CDN.
+
+### invoicely/
+Web-based invoice generator with client management, PDF export (WeasyPrint), status tracking, and dashboard analytics. Python 3 Flask + SQLite + TailwindCSS CDN.
+
+*End of Index*

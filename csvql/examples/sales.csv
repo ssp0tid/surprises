@@ -1,0 +1,6 @@
+id,employee_id,product,amount,date
+1,1,Widget,1500.50,2024-01-15
+2,3,Gadget,2300.00,2024-01-20
+3,2,Widget,800.75,2024-02-01
+4,5,Doohickey,3100.00,2024-02-15
+5,4,Gadget,1200.00,2024-03-01

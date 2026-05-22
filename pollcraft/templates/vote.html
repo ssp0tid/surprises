@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Vote: {{ poll.title }} — Pollcraft{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ poll.title }}</h1>
+        {% if poll.description %}
+        <p class="text-gray-600 mb-4">{{ poll.description }}</p>
+        {% endif %}
+
+        {% if poll.closed_at %}
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
+            This poll is closed. <a href="/r/{{ poll.slug }}" class="underline">View results</a>.
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-500 mb-4">
+            {% if poll.poll_type == 'multiple' %}
+            Select one or more options:
+            {% else %}
+            Select one option:
+            {% endif %}
+        </p>
+
+        <form id="vote-form" class="space-y-3">
+            {% for option in options %}
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                {% if poll.poll_type == 'multiple' %}
+                <input type="checkbox" name="option" value="{{ option.id }}"
+                       class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                {% else %}
+                <input type="radio" name="option" value="{{ option.id }}"
+                       class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                {% endif %}
+                <span class="text-gray-800">{{ option.text }}</span>
+            </label>
+            {% endfor %}
+
+            <div id="vote-error" class="text-red-600 text-sm hidden"></div>
+
+            <button type="submit"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition mt-4">
+                Submit Vote
+            </button>
+        </form>
+
+        <div id="vote-success" class="hidden text-center py-6">
+            <div class="text-3xl mb-2">✓</div>
+            <p class="text-lg font-semibold text-green-700">Vote recorded!</p>
+            <a href="/r/{{ poll.slug }}" class="text-indigo-600 hover:underline mt-2 inline-block">View Results →</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initVoteForm('{{ poll.slug }}');
+    });
+</script>
+{% endblock %}

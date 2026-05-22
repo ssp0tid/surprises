@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Palette Studio</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Color Palette Studio</h1>
+        <nav>
+            <a href="/" class="active">Workspace</a>
+            <a href="/saved">Saved Palettes</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="controls">
+            <div class="control-group">
+                <label for="base-color">Base Color</label>
+                <div class="color-input-wrapper">
+                    <input type="color" id="base-color" value="#e66465">
+                    <input type="text" id="base-color-hex" value="#e66465" maxlength="7" aria-label="Hex color value">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="harmony-rule">Harmony Rule</label>
+                <select id="harmony-rule">
+                    <option value="complementary">Complementary</option>
+                    <option value="analogous">Analogous</option>
+                    <option value="triadic">Triadic</option>
+                    <option value="split-complementary">Split Complementary</option>
+                    <option value="tetradic">Tetradic</option>
+                    <option value="monochromatic">Monochromatic</option>
+                </select>
+            </div>
+
+            <div class="control-group control-buttons">
+                <button id="generate-btn" type="button">Generate</button>
+                <button id="random-btn" type="button">Random</button>
+            </div>
+        </section>
+
+        <section class="palette" id="palette-section" aria-label="Generated color palette">
+            <div class="swatches" id="swatches"></div>
+        </section>
+
+        <section class="contrast-checker">
+            <h2>Contrast Checker</h2>
+            <div class="contrast-controls">
+                <div class="control-group">
+                    <label for="contrast-color1">Color 1</label>
+                    <select id="contrast-color1" aria-label="First color for contrast check"></select>
+                </div>
+                <div class="control-group">
+                    <label for="contrast-color2">Color 2</label>
+                    <select id="contrast-color2" aria-label="Second color for contrast check"></select>
+                </div>
+                <button id="check-contrast-btn" type="button">Check</button>
+            </div>
+            <div id="contrast-result" class="contrast-result" aria-live="polite"></div>
+        </section>
+
+        <section class="export-section">
+            <h2>Export</h2>
+            <div class="export-buttons">
+                <button type="button" data-format="css">CSS Variables</button>
+                <button type="button" data-format="scss">SCSS Variables</button>
+                <button type="button" data-format="tailwind">Tailwind Config</button>
+            </div>
+            <pre id="export-output" class="export-output" aria-live="polite"></pre>
+        </section>
+
+        <section class="save-section">
+            <h2>Save Palette</h2>
+            <div class="save-controls">
+                <input type="text" id="palette-name" placeholder="Palette name" aria-label="Palette name">
+                <button id="save-btn" type="button">Save</button>
+            </div>
+            <div id="save-message" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

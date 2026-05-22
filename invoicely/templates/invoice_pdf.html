@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ invoice.invoice_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: #333; padding: 40px; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+        .company { font-size: 24px; font-weight: bold; color: #4f46e5; }
+        .invoice-title { font-size: 28px; font-weight: bold; color: #111; text-align: right; }
+        .invoice-number { font-size: 14px; color: #666; text-align: right; }
+        .addresses { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .address-block h3 { font-size: 12px; text-transform: uppercase; color: #999; margin-bottom: 5px; }
+        .address-block p { margin-bottom: 2px; }
+        .meta-table { margin-bottom: 30px; }
+        .meta-table td { padding: 4px 12px 4px 0; }
+        .meta-table td:first-child { font-weight: bold; color: #666; }
+        table.items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        table.items th { background: #f3f4f6; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; color: #666; border-bottom: 2px solid #e5e7eb; }
+        table.items td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
+        table.items .text-right { text-align: right; }
+        .totals { text-align: right; margin-bottom: 30px; }
+        .totals p { margin-bottom: 4px; }
+        .totals .total { font-size: 20px; font-weight: bold; color: #111; }
+        .notes { border-top: 1px solid #e5e7eb; padding-top: 20px; }
+        .notes h3 { font-size: 12px; text-transform: uppercase; color: #999; margin-bottom: 5px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-paid { background: #d1fae5; color: #065f46; }
+        .status-sent { background: #dbeafe; color: #1e40af; }
+        .status-overdue { background: #fee2e2; color: #991b1b; }
+        .status-draft { background: #f3f4f6; color: #374151; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="company">Invoicely</div>
+        </div>
+        <div>
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-number">{{ invoice.invoice_number }}</div>
+        </div>
+    </div>
+
+    <div class="addresses">
+        <div class="address-block">
+            <h3>Bill To</h3>
+            <p><strong>{{ invoice.client_name }}</strong></p>
+            {% if invoice.client_company %}<p>{{ invoice.client_company }}</p>{% endif %}
+            {% if invoice.client_address %}<p>{{ invoice.client_address }}</p>{% endif %}
+            {% if invoice.client_email %}<p>{{ invoice.client_email }}</p>{% endif %}
+            {% if invoice.client_phone %}<p>{{ invoice.client_phone }}</p>{% endif %}
+            {% if invoice.client_tax_id %}<p>Tax ID: {{ invoice.client_tax_id }}</p>{% endif %}
+        </div>
+        <div class="address-block" style="text-align: right;">
+            <table class="meta-table" style="margin-left: auto;">
+                <tr><td>Issue Date:</td><td>{{ invoice.issue_date }}</td></tr>
+                <tr><td>Due Date:</td><td>{{ invoice.due_date }}</td></tr>
+                <tr><td>Status:</td><td>
+                    <span class="status-badge status-{{ invoice.status }}">{{ invoice.status|capitalize }}</span>
+                </td></tr>
+            </table>
+        </div>
+    </div>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">${{ "%.2f"|format(item.unit_price) }}</td>
+                <td class="text-right">${{ "%.2f"|format(item.quantity * item.unit_price) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <p>Subtotal: ${{ "%.2f"|format(invoice.subtotal) }}</p>
+        <p>Tax ({{ invoice.tax_rate }}%): ${{ "%.2f"|format(invoice.tax_amount) }}</p>
+        <p class="total">Total: ${{ "%.2f"|format(invoice.total) }}</p>
+    </div>
+
+    {% if invoice.notes %}
+    <div class="notes">
+        <h3>Notes</h3>
+        <p>{{ invoice.notes }}</p>
+    </div>
+    {% endif %}
+</body>
+</html>

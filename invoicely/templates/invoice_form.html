@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if invoice else 'New' }} Invoice — Invoicely{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">{{ 'Edit' if invoice else 'New' }} Invoice</h1>
+</div>
+
+{% if error %}
+<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">{{ error }}</div>
+{% endif %}
+
+<form method="post" class="bg-white rounded-lg shadow p-6" id="invoice-form">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+            <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+            <select name="client_id" id="client_id" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+                <option value="">Select a client</option>
+                {% for client in clients %}
+                <option value="{{ client.id }}" {{ 'selected' if invoice and invoice.client_id|string == client.id|string }}>{{ client.name }}{% if client.company %} ({{ client.company }}){% endif %}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+                <option value="draft" {{ 'selected' if invoice and invoice.status == 'draft' }}>Draft</option>
+                <option value="sent" {{ 'selected' if invoice and invoice.status == 'sent' }}>Sent</option>
+                <option value="paid" {{ 'selected' if invoice and invoice.status == 'paid' }}>Paid</option>
+                <option value="overdue" {{ 'selected' if invoice and invoice.status == 'overdue' }}>Overdue</option>
+            </select>
+        </div>
+        <div>
+            <label for="issue_date" class="block text-sm font-medium text-gray-700 mb-1">Issue Date *</label>
+            <input type="date" name="issue_date" id="issue_date" required value="{{ invoice.issue_date if invoice else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
+            <input type="date" name="due_date" id="due_date" required value="{{ invoice.due_date if invoice else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="tax_rate" class="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
+            <input type="number" name="tax_rate" id="tax_rate" step="0.01" min="0" value="{{ invoice.tax_rate if invoice else '0' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea name="notes" id="notes" rows="2" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">{{ invoice.notes if invoice else '' }}</textarea>
+        </div>
+    </div>
+
+    <div class="border-t pt-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Line Items</h2>
+            <button type="button" id="add-item-btn" class="bg-gray-800 text-white px-3 py-1 rounded-md text-sm hover:bg-gray-900">+ Add Item</button>
+        </div>
+        <div id="line-items">
+            {% if items %}
+                {% for item in items %}
+                <div class="line-item grid grid-cols-12 gap-3 mb-3 items-end">
+                    <div class="col-span-6">
+                        {% if loop.first %}<label class="block text-xs font-medium text-gray-500 mb-1">Description</label>{% endif %}
+                        <input type="text" name="description[]" value="{{ item.description }}" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+                    </div>
+                    <div class="col-span-2">
+                        {% if loop.first %}<label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>{% endif %}
+                        <input type="number" name="quantity[]" value="{{ item.quantity }}" step="0.01" min="0" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border item-qty">
+                    </div>
+                    <div class="col-span-2">
+                        {% if loop.first %}<label class="block text-xs font-medium text-gray-500 mb-1">Unit Price</label>{% endif %}
+                        <input type="number" name="unit_price[]" value="{{ item.unit_price }}" step="0.01" min="0" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border item-price">
+                    </div>
+                    <div class="col-span-2 flex items-center gap-2">
+                        {% if loop.first %}<label class="block text-xs font-medium text-gray-500 mb-1">&nbsp;</label>{% endif %}
+                        <span class="item-total text-sm font-medium text-gray-700 w-20"></span>
+                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 text-lg font-bold">&times;</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="line-item grid grid-cols-12 gap-3 mb-3 items-end">
+                    <div class="col-span-6">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                        <input type="text" name="description[]" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
+                        <input type="number" name="quantity[]" value="1" step="0.01" min="0" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border item-qty">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Unit Price</label>
+                        <input type="number" name="unit_price[]" value="0" step="0.01" min="0" required class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border item-price">
+                    </div>
+                    <div class="col-span-2 flex items-center gap-2">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">&nbsp;</label>
+                        <span class="item-total text-sm font-medium text-gray-700 w-20"></span>
+                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 text-lg font-bold">&times;</button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-6 border-t pt-4 text-right">
+            <p class="text-sm text-gray-600">Subtotal: $<span id="subtotal">0.00</span></p>
+            <p class="text-sm text-gray-600">Tax: $<span id="tax-amount">0.00</span></p>
+            <p class="text-lg font-bold text-gray-900">Total: $<span id="total">0.00</span></p>
+        </div>
+    </div>
+
+    <div class="mt-6 flex gap-3">
+        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">{{ 'Update' if invoice else 'Create' }} Invoice</button>
+        <a href="{{ url_for('invoice_list') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-300">Cancel</a>
+    </div>
+</form>
+{% endblock %}

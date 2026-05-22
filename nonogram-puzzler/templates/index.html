@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonogram Puzzler</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Nonogram Puzzler</h1>
+        <p class="subtitle">Solve logic puzzles by filling cells based on numeric clues</p>
+
+        <section class="new-game">
+            <h2>New Game</h2>
+            <div class="difficulty-buttons">
+                <button class="btn btn-easy" onclick="startGame('easy')">Easy (5×5)</button>
+                <button class="btn btn-medium" onclick="startGame('medium')">Medium (10×10)</button>
+                <button class="btn btn-hard" onclick="startGame('hard')">Hard (15×15)</button>
+            </div>
+        </section>
+
+        {% if saves %}
+        <section class="saved-games">
+            <h2>Your Games</h2>
+            <ul class="game-list">
+                {% for save in saves %}
+                <li class="game-item {{ 'completed' if save.completed else 'in-progress' }}">
+                    <div class="game-info">
+                        <span class="difficulty-badge {{ save.difficulty }}">{{ save.difficulty|capitalize }}</span>
+                        {% if save.completed %}
+                            <span class="status">✓ Completed</span>
+                            <span class="time">{{ "%d:%02d"|format(save.elapsed_seconds // 60, save.elapsed_seconds % 60) }}</span>
+                        {% else %}
+                            <span class="status">In Progress</span>
+                            <span class="time">{{ "%d:%02d"|format(save.elapsed_seconds // 60, save.elapsed_seconds % 60) }}</span>
+                        {% endif %}
+                    </div>
+                    {% if not save.completed %}
+                        <a href="/play/{{ save.puzzle_id }}" class="btn btn-resume">Resume</a>
+                    {% else %}
+                        <a href="/play/{{ save.puzzle_id }}" class="btn btn-view">View</a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    </div>
+
+    <script>
+    async function startGame(difficulty) {
+        const res = await fetch('/api/new-game', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({difficulty})
+        });
+        if (res.ok) {
+            const data = await res.json();
+            window.location.href = '/play/' + data.puzzle_id;
+        } else {
+            const err = await res.json();
+            alert(err.error || 'Failed to create game');
+        }
+    }
+    </script>
+</body>
+</html>

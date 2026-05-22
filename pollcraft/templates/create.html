@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Create Poll — Pollcraft{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Create a New Poll</h1>
+
+    <form id="create-form" class="bg-white rounded-lg shadow p-6 space-y-6">
+        <div>
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <input type="text" id="title" name="title" maxlength="200" required
+                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   placeholder="What's your question?">
+        </div>
+
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+            <textarea id="description" name="description" maxlength="1000" rows="2"
+                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Add more context..."></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Options</label>
+            <div id="options-container" class="space-y-2">
+                <div class="flex gap-2 option-row">
+                    <input type="text" name="option" maxlength="200" required
+                           class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                           placeholder="Option 1">
+                    <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2" title="Remove">✕</button>
+                </div>
+                <div class="flex gap-2 option-row">
+                    <input type="text" name="option" maxlength="200" required
+                           class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                           placeholder="Option 2">
+                    <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2" title="Remove">✕</button>
+                </div>
+            </div>
+            <button type="button" onclick="addOption()"
+                    class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                + Add Option
+            </button>
+        </div>
+
+        <div class="flex gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Poll Type</label>
+                <select id="poll-type" name="poll_type"
+                        class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="single">Single Choice</option>
+                    <option value="multiple">Multiple Choice</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="allow-comments" name="allow_comments"
+                           class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                    <span class="text-sm text-gray-700">Allow comments</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="form-error" class="text-red-600 text-sm hidden"></div>
+
+        <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition">
+            Create Poll
+        </button>
+    </form>
+
+    <div id="success-panel" class="hidden bg-white rounded-lg shadow p-6 mt-6">
+        <h2 class="text-xl font-bold text-green-700 mb-4">Poll Created!</h2>
+        <div class="space-y-3">
+            <div>
+                <label class="text-sm font-medium text-gray-700">Vote Link:</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" id="vote-url" readonly class="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <button onclick="copyToClipboard('vote-url')" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md text-sm">Copy</button>
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700">Results Link:</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" id="results-url" readonly class="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <button onclick="copyToClipboard('results-url')" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md text-sm">Copy</button>
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700">Admin Link (keep secret!):</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" id="manage-url" readonly class="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <button onclick="copyToClipboard('manage-url')" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md text-sm">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Pollcraft — Real-time Polls{% endblock %}
+{% block content %}
+<div class="text-center py-16">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Create polls in seconds</h1>
+    <p class="text-lg text-gray-600 mb-8 max-w-xl mx-auto">
+        Build polls and surveys, share them via unique links, and watch results update live. No login required.
+    </p>
+    <a href="/create" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg text-lg transition">
+        Create a Poll
+    </a>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6 mt-8">
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <div class="text-3xl mb-3">📊</div>
+        <h3 class="font-semibold text-gray-900 mb-2">Live Results</h3>
+        <p class="text-gray-600 text-sm">Watch votes come in real-time with beautiful charts.</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <div class="text-3xl mb-3">🔗</div>
+        <h3 class="font-semibold text-gray-900 mb-2">Share Easily</h3>
+        <p class="text-gray-600 text-sm">Every poll gets a unique link. Share anywhere.</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <div class="text-3xl mb-3">🔒</div>
+        <h3 class="font-semibold text-gray-900 mb-2">No Login</h3>
+        <p class="text-gray-600 text-sm">Create and vote without signing up. Admin via secret token.</p>
+    </div>
+</div>
+{% endblock %}

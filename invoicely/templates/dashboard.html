@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Invoicely{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm font-medium text-gray-500">Total Revenue</p>
+        <p class="text-2xl font-bold text-green-600">${{ "%.2f"|format(stats.total_revenue) }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm font-medium text-gray-500">Outstanding</p>
+        <p class="text-2xl font-bold text-orange-600">${{ "%.2f"|format(stats.outstanding) }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm font-medium text-gray-500">Paid Invoices</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.status_counts.get('paid', 0) }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm font-medium text-gray-500">Draft / Sent / Overdue</p>
+        <p class="text-2xl font-bold text-gray-900">
+            {{ stats.status_counts.get('draft', 0) }} /
+            {{ stats.status_counts.get('sent', 0) }} /
+            {{ stats.status_counts.get('overdue', 0) }}
+        </p>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-900">Recent Invoices</h2>
+        <a href="{{ url_for('invoice_new') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">New Invoice</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for inv in stats.recent_invoices %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm">
+                        <a href="{{ url_for('invoice_view', invoice_id=inv.id) }}" class="text-indigo-600 hover:underline">{{ inv.invoice_number }}</a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ inv.client_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ inv.issue_date }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if inv.status == 'paid' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>
+                        {% elif inv.status == 'sent' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Sent</span>
+                        {% elif inv.status == 'overdue' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Overdue</span>
+                        {% else %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not stats.recent_invoices %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">No invoices yet.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

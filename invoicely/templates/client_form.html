@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if client else 'New' }} Client — Invoicely{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">{{ 'Edit' if client else 'New' }} Client</h1>
+</div>
+
+{% if error %}
+<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">{{ error }}</div>
+{% endif %}
+
+<form method="post" class="bg-white rounded-lg shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+            <input type="text" name="name" id="name" required value="{{ client.name if client else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" name="email" id="email" value="{{ client.email if client else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+            <input type="text" name="company" id="company" value="{{ client.company if client else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input type="text" name="phone" id="phone" value="{{ client.phone if client else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div>
+            <label for="tax_id" class="block text-sm font-medium text-gray-700 mb-1">Tax ID</label>
+            <input type="text" name="tax_id" id="tax_id" value="{{ client.tax_id if client else '' }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">
+        </div>
+        <div class="md:col-span-2">
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <textarea name="address" id="address" rows="3" class="w-full border-gray-300 rounded-md shadow-sm text-sm p-2 border">{{ client.address if client else '' }}</textarea>
+        </div>
+    </div>
+    <div class="mt-6 flex gap-3">
+        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">{{ 'Update' if client else 'Create' }} Client</button>
+        <a href="{{ url_for('client_list') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-300">Cancel</a>
+    </div>
+</form>
+{% endblock %}
